@@ -102,12 +102,11 @@ class ResultsFragment : Fragment() {
             adapter.notifyDataSetChanged()
 
             viewLifecycleOwner.lifecycleScope.launch {
-                val recoveredCount = chosen.size
                 val folderLabel = getRecoveryFolderLabel(chosen)
                 val toMusic = folderLabel.contains("Music")
 
                 try {
-                    withContext(Dispatchers.IO) {
+                    val recoveredCount = withContext(Dispatchers.IO) {
                         Recovery.copyAll(requireContext(), chosen)
                     }
                     selectedIds.clear()
