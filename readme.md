@@ -2,6 +2,9 @@
 
 ## Changelog
 
+### 1.1.5
+- fixed recovery confirmation to report the number of files actually recovered
+
 ### 1.1.4
 - removed checkboxes and selection UI from Recovered Photos/Videos
 - removed checkboxes and selection UI from Recovered Audio
