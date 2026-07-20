@@ -36,11 +36,16 @@ object SnackbarUtils {
 
     suspend fun showRecovered(activity: Activity, count: Int, isAudioOnly: Boolean) {
         withContext(Dispatchers.Main) {
-            val dest = if (isAudioOnly) "Music/Recovered" else "Pictures/Recovered"
-            val label = if (count == 1) "item" else "items"
+            val message = if (count == 0) {
+                "No items were recovered"
+            } else {
+                val dest = if (isAudioOnly) "Music/Recovered" else "Pictures/Recovered"
+                val label = if (count == 1) "item" else "items"
+                "$count $label recovered to $dest"
+            }
             Snackbar.make(
                 rootView(activity),
-                "$count $label recovered to $dest",
+                message,
                 Snackbar.LENGTH_LONG
             ).setAnchorView(anchorView(activity))
              .show()
