@@ -35,6 +35,8 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
 
       - name: Point ANDROID_HOME at SDK root
         run: echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
@@ -43,8 +45,6 @@ jobs:
         run: |
           yes | sdkmanager --licenses
           sdkmanager \
-            "platform-tools" \
-            "cmdline-tools;latest" \
             "build-tools;35.0.0" \
             "platforms;android-35"
 
