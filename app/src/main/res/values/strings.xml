@@ -79,8 +79,15 @@
     <string name="scan_error_msg">Something went wrong while scanning your storage.</string>
 
     <!-- recovery confirmation -->
-    <string name="recover_success_single">Recovered %1$d file(s) to %2$s</string>
-    <string name="recover_success_multi">Recovered %1$d file(s) to %2$s and %3$s</string>
+    <string name="recovery_in_progress_count">Recovering %1$d items…</string>
+    <string name="recovery_in_progress">Recovering items…</string>
+    <string name="recovery_none">No items were recovered</string>
+    <string name="recovery_folder_pictures" translatable="false">Pictures/Recovered</string>
+    <string name="recovery_folder_music" translatable="false">Music/Recovered</string>
+    <plurals name="recovery_success">
+        <item quantity="one">%1$d item recovered to %2$s</item>
+        <item quantity="other">%1$d items recovered to %2$s</item>
+    </plurals>
 
     <!-- layout toggle -->
     <string name="action_view_grid">Grid</string>

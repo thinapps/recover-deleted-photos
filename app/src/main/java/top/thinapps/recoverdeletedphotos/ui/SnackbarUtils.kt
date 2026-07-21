@@ -19,9 +19,9 @@ object SnackbarUtils {
     fun showRecovering(activity: Activity, totalPlanned: Int? = null) {
         dismissRecovering()
         val msg = if (totalPlanned != null && totalPlanned > 0) {
-            "Recovering $totalPlanned items…"
+            activity.getString(R.string.recovery_in_progress_count, totalPlanned)
         } else {
-            "Recovering items…"
+            activity.getString(R.string.recovery_in_progress)
         }
         inProgressBar = Snackbar.make(rootView(activity), msg, Snackbar.LENGTH_INDEFINITE).apply {
             setAnchorView(anchorView(activity))
@@ -37,11 +37,20 @@ object SnackbarUtils {
     suspend fun showRecovered(activity: Activity, count: Int, isAudioOnly: Boolean) {
         withContext(Dispatchers.Main) {
             val message = if (count == 0) {
-                "No items were recovered"
+                activity.getString(R.string.recovery_none)
             } else {
-                val dest = if (isAudioOnly) "Music/Recovered" else "Pictures/Recovered"
-                val label = if (count == 1) "item" else "items"
-                "$count $label recovered to $dest"
+                val destinationRes = if (isAudioOnly) {
+                    R.string.recovery_folder_music
+                } else {
+                    R.string.recovery_folder_pictures
+                }
+                val destination = activity.getString(destinationRes)
+                activity.resources.getQuantityString(
+                    R.plurals.recovery_success,
+                    count,
+                    count,
+                    destination
+                )
             }
             Snackbar.make(
                 rootView(activity),
