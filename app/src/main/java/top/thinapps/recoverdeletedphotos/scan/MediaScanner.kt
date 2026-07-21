@@ -32,6 +32,7 @@ class MediaScanner(private val context: Context) {
         onProgress: (found: Int, total: Int) -> Unit
     ): List<MediaItem> = withContext(Dispatchers.IO) {
         val out = mutableListOf<MediaItem>()
+        val seenUris = mutableSetOf<Uri>()
 
         // build query list based on user selections
         val queries = buildList {
@@ -107,7 +108,7 @@ class MediaScanner(private val context: Context) {
                         offset = offset,
                         signal = cancel
                     )?.use { c ->
-                        consumeCursor(c, q, projection, out) { inc ->
+                        consumeCursor(c, q, projection, seenUris, out) { inc ->
                             found += inc
                             maybeEmitProgress(onProgress, found, total, ::nanoNow, lastEmit).also {
                                 lastEmit = it
@@ -134,7 +135,7 @@ class MediaScanner(private val context: Context) {
                     offset = null,
                     signal = cancel
                 )?.use { c ->
-                    consumeCursor(c, q, projection, out) { inc ->
+                    consumeCursor(c, q, projection, seenUris, out) { inc ->
                         found += inc
                         maybeEmitProgress(onProgress, found, total, ::nanoNow, lastEmit).also {
                             lastEmit = it
@@ -211,7 +212,13 @@ class MediaScanner(private val context: Context) {
         )
         context.contentResolver.query(uri, projection, extras, signal)
     } else {
-        context.contentResolver.query(uri, projection, selection, selectionArgs, "$sortCol DESC")
+        context.contentResolver.query(
+            uri,
+            projection,
+            selection,
+            selectionArgs,
+            "$sortCol DESC, ${MediaStore.MediaColumns._ID} DESC"
+        )
     }
 
     // extras bundle for api 26+ query options
@@ -223,7 +230,10 @@ class MediaScanner(private val context: Context) {
         offset: Int?
     ): Bundle {
         return Bundle().apply {
-            putStringArray(android.content.ContentResolver.QUERY_ARG_SORT_COLUMNS, arrayOf(sortCol))
+            putStringArray(
+                android.content.ContentResolver.QUERY_ARG_SORT_COLUMNS,
+                arrayOf(sortCol, MediaStore.MediaColumns._ID)
+            )
             putInt(
                 android.content.ContentResolver.QUERY_ARG_SORT_DIRECTION,
                 android.content.ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
@@ -250,6 +260,7 @@ class MediaScanner(private val context: Context) {
         c: android.database.Cursor,
         q: QuerySpec,
         projection: Array<String>,
+        seenUris: MutableSet<Uri>,
         out: MutableList<MediaItem>,
         onItems: (inc: Int) -> Unit
     ): Int {
@@ -269,8 +280,11 @@ class MediaScanner(private val context: Context) {
         while (c.moveToNext()) {
             if (!coroutineContext.isActive) break
 
+            consumed++
             val id = c.getLong(idIdx)
             val uri = ContentUris.withAppendedId(q.uri, id)
+            if (!seenUris.add(uri)) continue
+
             val name = c.getString(nameIdx)?.takeIf { it.isNotBlank() } ?: "recovered_$id"
             val size = c.getLong(sizeIdx)
             val dateAdded = c.getLong(dateIdx)
@@ -290,7 +304,6 @@ class MediaScanner(private val context: Context) {
                 mimeType = mime // <--- MODIFIED: Pass the actual MIME type
             )
 
-            consumed++
             onItems(1)
 
             // yield occasionally to stay responsive
