@@ -253,7 +253,7 @@
 
 ### 0.16.9
 - ScanFragment: Hardened Cancel flow with lifecycle-aware navigation to avoid crashes
-- ScanFragment: System back now mirrors Cancel (stops scan, clears results, and returns Home)
+- ScanFragment: System back now mirrors Cancel (stops scan, clears results, and returns to Home)
 
 ### 0.16.8
 - ScanFragment: Cancel button now reliably returns to Home (popBackStack with safe navigate fallback)
