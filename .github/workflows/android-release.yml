@@ -36,17 +36,31 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Clean any leftover/broken wrapper
+      - name: Point ANDROID_HOME at SDK root
+        run: echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+
+      - name: Install Android SDK platform + build-tools
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager \
+            "platform-tools" \
+            "cmdline-tools;latest" \
+            "build-tools;35.0.0" \
+            "platforms;android-35"
+
+      - name: Clean any leftover wrapper jar
         run: rm -f gradle/wrapper/gradle-wrapper.jar
 
       - name: Download Gradle 8.9
         run: |
           set -euo pipefail
-          curl -sL https://services.gradle.org/distributions/gradle-8.9-bin.zip -o gradle.zip
+          curl --fail --location --show-error --silent \
+            https://services.gradle.org/distributions/gradle-8.9-bin.zip \
+            -o gradle.zip
           unzip -q gradle.zip
           echo "$PWD/gradle-8.9/bin" >> "$GITHUB_PATH"
 
-      - name: Generate Gradle Wrapper (8.9)
+      - name: Generate Gradle Wrapper
         run: gradle wrapper --gradle-version 8.9
 
       - name: Make Gradle executable
@@ -55,18 +69,23 @@ jobs:
       - name: Restore keystore from secret
         run: |
           set -euo pipefail
-          echo "${{ secrets.RELEASE_KEYSTORE }}" | base64 --decode > "$HOME/keystore/upload-key.jks"
-
-      - name: Diagnose Kotlin compile (verbose)
-        run: |
-          ./gradlew --no-daemon --stacktrace --debug --info --warning-mode all \
-            --rerun-tasks :app:compileReleaseKotlin
+          printf '%s' "${{ secrets.RELEASE_KEYSTORE }}" | base64 --decode > "$HOME/keystore/upload-key.jks"
 
       - name: Build signed Release bundle
         run: ./gradlew --no-daemon --stacktrace --info clean bundleRelease
 
+      - name: Name release bundle
+        run: |
+          set -euo pipefail
+          VERSION_NAME=$(grep -m1 'versionName' app/build.gradle | sed -E 's/.*"([^"]+)".*/\1/')
+          AAB_BASENAME="recover-deleted-photos-${VERSION_NAME}-release"
+          AAB_FILE="${AAB_BASENAME}.aab"
+          cp app/build/outputs/bundle/release/app-release.aab "$AAB_FILE"
+          echo "AAB_BASENAME=$AAB_BASENAME" >> "$GITHUB_ENV"
+          echo "AAB_FILE=$AAB_FILE" >> "$GITHUB_ENV"
+
       - name: Verify AAB signature
-        run: jarsigner -verify app/build/outputs/bundle/release/app-release.aab
+        run: jarsigner -verify "$AAB_FILE"
 
       - name: Upload build logs
         if: failure()
@@ -85,6 +104,5 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: app/build/outputs/bundle/release/app-release.aab
-          
+          name: ${{ env.AAB_BASENAME }}
+          path: ${{ env.AAB_FILE }}
