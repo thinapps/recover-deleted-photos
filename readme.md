@@ -31,7 +31,7 @@
 ### 1.1.0
 - added a new in-app viewer for recovered photos and videos
 - browse all files saved in the `Pictures/Recovered` directory directly inside the app
-- wired the Home screen “Recovered Photos/Videos” button to navigate to the new viewer
+- wired the Home screen “Recovered Photos/Videos” button to the new viewer
 - kept the “Recovered Audio” button as a placeholder for a future update
 - added new UI strings and navigation entries needed for the recovered viewer
 
@@ -507,7 +507,7 @@
 
 ### 0.7.3
 - added advanced sorting options: Date (Newest/Oldest), Size (Largest/Smallest), Name (A–Z/Z–A)
-- automatically scrolls results to top after users change the sorting order
+- automatically scrolls results to top when changing sort order
 - polished layout spacing and spinner prompt for better UX
 
 ### 0.7.2
