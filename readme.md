@@ -3,7 +3,7 @@
 ## Changelog
 
 ### 1.1.6
-- aligned Android SDK setup in the release workflow with other ThinApps apps
+- updated the release workflow to install platform-tools through setup-android, matching the QR Code Scanner workflow structure while retaining Android 35 and Gradle 8.9
 
 ### 1.1.5
 - fixed recovery confirmation to report the actual number of files recovered and show a clear message when none succeed
@@ -315,7 +315,7 @@
 
 ### 0.15.5
 - Recovery.kt: added `DATE_TAKEN` field for image/video recovery to preserve original timestamp
-- Recovery.kt: specified `"w"` mode in `openOutputStream` for explicit write intent
+- Recovery.kt: specified "w" mode in `openOutputStream` for explicit write intent
 - Recovery.kt: no logic or behavior changes elsewhere, maintains scoped storage compliance
 
 ### 0.15.4
