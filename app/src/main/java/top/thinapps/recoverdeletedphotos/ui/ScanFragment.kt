@@ -215,13 +215,13 @@ class ScanFragment : Fragment() {
                             includeImages = type == TypeChoice.PHOTOS,
                             includeVideos = type == TypeChoice.VIDEOS,
                             includeAudio = type == TypeChoice.AUDIO
-                        ) { _, total ->
+                        ) { found, _ ->
                             // throttle ui updates — the ticker makes it feel smooth
                             val now = SystemClock.uptimeMillis()
-                            if (total != lastEmitted && now - lastUiPost >= 150L) {
-                                lastEmitted = total
+                            if (found != lastEmitted && now - lastUiPost >= 150L) {
+                                lastEmitted = found
                                 lastUiPost = now
-                                vb.root.post { latestTotal = total }
+                                vb.root.post { latestTotal = found }
                             }
                         }
                     }
