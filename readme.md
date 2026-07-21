@@ -4,6 +4,7 @@
 
 ### 1.1.5
 - fixed recovery confirmation to report the actual number of files recovered and show a clear message when none succeed
+- moved recovery status and confirmation messages into Android string resources
 
 ### 1.1.4
 - removed checkboxes and selection UI from Recovered Photos/Videos
