@@ -3,7 +3,7 @@
 ## Changelog
 
 ### 1.1.6
-- updated the release workflow to install platform-tools through setup-android, matching the QR Code Scanner workflow structure while retaining Android 35 and Gradle 8.9
+- updated Android SDK setup in the release workflow
 
 ### 1.1.5
 - fixed recovery confirmation to report the actual number of files recovered and show a clear message when none succeed
@@ -253,7 +253,7 @@
 
 ### 0.16.9
 - ScanFragment: Hardened Cancel flow with lifecycle-aware navigation to avoid crashes
-- ScanFragment: System back now mirrors Cancel (stops scan, clears results, and returns to Home)
+- ScanFragment: System back now mirrors Cancel (stops scan, clears results, and returns Home)
 
 ### 0.16.8
 - ScanFragment: Cancel button now reliably returns to Home (popBackStack with safe navigate fallback)
