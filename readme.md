@@ -315,7 +315,7 @@
 
 ### 0.15.5
 - Recovery.kt: added `DATE_TAKEN` field for image/video recovery to preserve original timestamp
-- Recovery.kt: specified "w" mode in `openOutputStream` for explicit write intent
+- Recovery.kt: specified `"w"` mode in `openOutputStream` for explicit write intent
 - Recovery.kt: no logic or behavior changes elsewhere, maintains scoped storage compliance
 
 ### 0.15.4
