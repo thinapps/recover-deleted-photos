@@ -1,0 +1,11 @@
+# Scanning
+
+Recover Deleted Photos scans Android MediaStore locally for the selected media type.
+
+- normal and trashed media exposed by the device are included
+- zero-size entries and entries without a MIME type are excluded
+- large result sets are read in pages ordered by date and MediaStore ID
+- duplicate content URIs are ignored, so each scan result is counted once
+- the live counter reflects the number of unique results found during the scan
+
+MediaStore IDs are used only as stable tie-breakers when multiple items share the same date. The complete content URI is used for deduplication, so identical numeric IDs from different media collections remain separate results.
