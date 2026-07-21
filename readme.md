@@ -273,7 +273,7 @@
 
 ## 0.16.4
 - ScanFragment.kt: stabilized progress updates (throttled text updates during scan to avoid animator churn/crashes)
-- ScanFragment.kt: single smooth final animation after scan completes
+- ScanFragment.kt: single smooth final count animation after scan completes
 - UI: neon green final count (md_green_A400) for clearer “found files” highlight
 
 ### 0.16.3
@@ -581,3 +581,4 @@
 - initial test release (unsigned)
 - basic project structure with GitHub Actions support
 - app icon and minimal `MainActivity` with empty layout
+  
