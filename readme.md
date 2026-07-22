@@ -39,7 +39,7 @@
 ### 1.1.0
 - added a new in-app viewer for recovered photos and videos
 - browse all files saved in the `Pictures/Recovered` directory directly inside the app
-- wired the Home screen “Recovered Photos/Videos” button to the new viewer
+- wired the Home screen “Recovered Photos/Videos” button to navigate to the new viewer
 - kept the “Recovered Audio” button as a placeholder for a future update
 - added new UI strings and navigation entries needed for the recovered viewer
 
@@ -324,7 +324,7 @@
 
 ### 0.15.5
 - Recovery.kt: added `DATE_TAKEN` field for image/video recovery to preserve original timestamp
-- Recovery.kt: specified "w" mode in `openOutputStream` for explicit write intent
+- Recovery.kt: specified `"w"` mode in `openOutputStream` for explicit write intent
 - Recovery.kt: no logic or behavior changes elsewhere, maintains scoped storage compliance
 
 ### 0.15.4
