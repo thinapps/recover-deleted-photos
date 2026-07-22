@@ -109,9 +109,9 @@ class RecoveredAudioFragment : Fragment() {
         resolver.query(
             collection,
             projection,
-            "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?",
-            arrayOf("Music/Recovered%"),
-            "${MediaStore.MediaColumns.DATE_ADDED} DESC"
+            "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
+            arrayOf("Music/Recovered", "Music/Recovered/"),
+            "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
         )?.use { c ->
             val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
             val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
