@@ -1,9 +1,12 @@
 package top.thinapps.recoverdeletedphotos
 
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -25,12 +28,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // keeps content below system bars for edge-to-edge display
-        WindowCompat.setDecorFitsSystemWindows(window, true)
+        // enables the edge-to-edge behavior required by current Android versions
+        enableEdgeToEdge()
 
         // inflate layout and set as content view
         vb = ActivityMainBinding.inflate(layoutInflater)
         setContentView(vb.root)
+        applyWindowInsets()
 
         // set the material toolbar as the action bar
         setSupportActionBar(vb.toolbar)
@@ -55,16 +59,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // keeps all app controls clear of status, navigation, and display-cutout areas
+    private fun applyWindowInsets() {
+        val baseLeft = vb.root.paddingLeft
+        val baseTop = vb.root.paddingTop
+        val baseRight = vb.root.paddingRight
+        val baseBottom = vb.root.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(vb.root) { view, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or
+                    WindowInsetsCompat.Type.displayCutout()
+            )
+            view.updatePadding(
+                left = baseLeft + bars.left,
+                top = baseTop + bars.top,
+                right = baseRight + bars.right,
+                bottom = baseBottom + bars.bottom
+            )
+            insets
+        }
+        ViewCompat.requestApplyInsets(vb.root)
+    }
+
     // supports the up button navigation functionality
     override fun onSupportNavigateUp(): Boolean {
         // checks if the controller has been initialized
         if (!::navController.isInitialized) {
             return super.onSupportNavigateUp()
         }
-        
-        // FIX: If the current fragment is the scan or results screen, we manually trigger the
-        // system back dispatcher. This ensures the Fragment's custom OnBackPressedCallback
-        // (which calls cancel() or goes directly to Home) is executed.
+
+        // If the current fragment is the scan or results screen, manually trigger the
+        // system back dispatcher so the Fragment's custom cleanup callback is executed.
         val currentId = navController.currentDestination?.id
         if (currentId == R.id.scanFragment || currentId == R.id.resultsFragment) {
             onBackPressedDispatcher.onBackPressed()
