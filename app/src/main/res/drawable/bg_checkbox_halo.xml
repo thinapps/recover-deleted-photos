@@ -2,5 +2,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
     <solid android:color="#80263238"/>
-    <size android:width="36dp" android:height="36dp"/>
+    <size
+        android:width="@dimen/media_overlay_size"
+        android:height="@dimen/media_overlay_size"/>
 </shape>
