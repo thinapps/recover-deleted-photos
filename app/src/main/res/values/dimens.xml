@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- shared layout values -->
+    <dimen name="layout_zero">0dp</dimen>
+    <dimen name="space_2">2dp</dimen>
+    <dimen name="space_4">4dp</dimen>
+    <dimen name="space_6">6dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_48">48dp</dimen>
+    <dimen name="stroke_width_thin">1dp</dimen>
+    <dimen name="elevation_low">1dp</dimen>
+    <dimen name="minimum_touch_target">48dp</dimen>
+
+    <!-- component sizes -->
+    <dimen name="standard_icon_size">24dp</dimen>
+    <dimen name="home_icon_size">160dp</dimen>
+    <dimen name="scan_pulse_size">200dp</dimen>
+    <dimen name="scan_pulse_radius">100dp</dimen>
+    <dimen name="media_item_min_height">120dp</dimen>
+    <dimen name="media_thumbnail_size">96dp</dimen>
+    <dimen name="media_overlay_size">36dp</dimen>
+    <dimen name="results_list_bottom_padding">72dp</dimen>
+
+    <!-- shapes -->
+    <dimen name="small_corner_radius">8dp</dimen>
+    <dimen name="badge_corner_radius">12dp</dimen>
+
+    <!-- typography -->
+    <dimen name="privacy_link_text_size">12sp</dimen>
+    <dimen name="media_text_size">12sp</dimen>
+    <dimen name="scan_count_text_size">36sp</dimen>
+    <dimen name="dialog_title_text_size">20sp</dimen>
+    <dimen name="dialog_body_text_size">14sp</dimen>
+    <dimen name="dialog_button_text_size">14sp</dimen>
+</resources>
