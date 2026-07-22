@@ -181,6 +181,7 @@ class ScanFragment : Fragment() {
     private fun start(type: TypeChoice) = withVb {
         // show scanning ui and hide state screens
         showScanUI(true)
+        val progressRoot = root
 
         job = viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -221,7 +222,9 @@ class ScanFragment : Fragment() {
                             if (found != lastEmitted && now - lastUiPost >= 150L) {
                                 lastEmitted = found
                                 lastUiPost = now
-                                vb.root.post { latestTotal = found }
+                                progressRoot.post {
+                                    if (_vb?.root === progressRoot) latestTotal = found
+                                }
                             }
                         }
                     }
@@ -316,25 +319,35 @@ class ScanFragment : Fragment() {
         tickerJob = null
     }
 
+    private fun cancelCountAnimation() {
+        countAnimator?.removeAllUpdateListeners()
+        countAnimator?.removeAllListeners()
+        countAnimator?.cancel()
+        countAnimator = null
+        _vb?.totalCount?.animate()?.cancel()
+    }
+
     // final animation: count to the exact total, then do a subtle scale pulse (no glow)
     private fun animateCountTo(target: Int) = withVb {
-        countAnimator?.cancel()
-        val startValue = vb.totalCount.text.toString().replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+        cancelCountAnimation()
+        val countView = totalCount
+        val startValue = countView.text.toString().replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
         countAnimator = ValueAnimator.ofInt(startValue, target).apply {
             duration = COUNT_ANIM_MS
             interpolator = FastOutSlowInInterpolator()
             addUpdateListener { anim ->
-                vb.totalCount.text = getString(R.string.total_files_count, anim.animatedValue as Int)
+                countView.text = getString(R.string.total_files_count, anim.animatedValue as Int)
             }
             doOnEnd {
+                countAnimator = null
                 // subtle emphasis: scale up then back down (keeps text color unchanged)
                 val interp = FastOutSlowInInterpolator()
-                vb.totalCount.animate()
+                countView.animate()
                     .scaleX(1.12f).scaleY(1.12f)
                     .setDuration(180L)
                     .setInterpolator(interp)
                     .withEndAction {
-                        vb.totalCount.animate()
+                        countView.animate()
                             .scaleX(1f).scaleY(1f)
                             .setDuration(180L)
                             .setInterpolator(interp)
@@ -437,7 +450,7 @@ class ScanFragment : Fragment() {
         // stop all work/animations right away
         job?.cancel()
         stopCountTicker()
-        countAnimator?.cancel()
+        cancelCountAnimation()
         stopPulses()
 
         // clear any in-memory results for privacy/freshness
@@ -576,7 +589,9 @@ class ScanFragment : Fragment() {
     override fun onDestroyView() {
         // clean up to avoid leaks and lingering jobs
         job?.cancel()
+        job = null
         stopCountTicker()
+        cancelCountAnimation()
         stopPulses()
         _vb = null
         super.onDestroyView()
