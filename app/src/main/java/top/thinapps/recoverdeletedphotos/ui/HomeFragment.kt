@@ -38,8 +38,8 @@ class HomeFragment : Fragment() {
     // pending type across permission request
     private var pendingType: TypeChoice? = null
 
-    // tracks whether we already requested once in this session
-    private var hasRequestedOnce = false
+    // tracks which permissions were already requested in this view session
+    private val requestedPermissions = mutableSetOf<String>()
 
     // permission launcher for a single permission
     private val requestPerm = registerForActivityResult(
@@ -55,11 +55,10 @@ class HomeFragment : Fragment() {
         // reenable primary action after request completes
         vb.startButton.isEnabled = true
 
-        // navigate on success else mark as tried and refresh label
+        // navigate on success else refresh label
         if (granted && type != null) {
             navigateToScan(type)
         } else {
-            hasRequestedOnce = true
             updateButtonText()
         }
     }
@@ -116,10 +115,10 @@ class HomeFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // flow 2 not granted yet -> first ask then route to settings after a denial
-            if (!hasRequestedOnce) {
+            // flow 2 request this permission once, then route to settings after denial
+            if (perm !in requestedPermissions) {
                 pendingType = type
-                hasRequestedOnce = true
+                requestedPermissions += perm
                 requestPerm.launch(perm)
             } else {
                 openAppSettings()
@@ -163,7 +162,7 @@ class HomeFragment : Fragment() {
         val perm = requiredPerm(currentType())
         val textRes = when {
             hasPermission(perm) -> R.string.start_scan
-            !hasRequestedOnce -> R.string.start_scan
+            perm !in requestedPermissions -> R.string.start_scan
             else -> R.string.action_grant_settings
         }
         vb.startButton.text = getString(textRes)
@@ -213,10 +212,15 @@ class HomeFragment : Fragment() {
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (_vb != null && isAndroid13Plus()) updateButtonText()
+    }
+
     override fun onDestroyView() {
         // clear transient state and bindings
         pendingType = null
-        hasRequestedOnce = false
+        requestedPermissions.clear()
         _vb = null
         super.onDestroyView()
     }
