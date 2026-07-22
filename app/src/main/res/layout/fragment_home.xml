@@ -162,4 +162,18 @@
         android:textAppearance="?attr/textAppearanceBodySmall"
         android:textAlignment="center" />
 
+    <!-- compact footer link that opens the in-app privacy policy -->
+    <top.thinapps.recoverdeletedphotos.PrivacyPolicyTextView
+        android:id="@+id/privacyPolicy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="@string/privacy_policy_link"
+        android:textColor="@color/md_outline"
+        android:textSize="12sp" />
+
 </LinearLayout>
