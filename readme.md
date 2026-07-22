@@ -6,6 +6,7 @@
 - added an underlined Privacy Policy link below the Home footer
 - opens a Material in-app policy dialog without adding Internet access, another screen, or new permissions
 - documents local MediaStore scanning, temporary scan results, recovery copies, and external recovered-file opening
+- centralized app-owned layout, component, shape, drawable, and text dimensions in `dimens.xml` without changing the interface
 
 ### 1.2.0
 - upgraded the Android build toolchain to AGP 8.10.1, Kotlin 2.2.21, Gradle 8.11.1, and Java 17
