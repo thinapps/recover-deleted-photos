@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
@@ -6,12 +8,12 @@ android {
     // sets the kotlin package namespace for the app
     namespace "top.thinapps.recoverdeletedphotos"
     // sets the api level used for compilation
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "top.thinapps.recoverdeletedphotos"
         minSdk 21
-        targetSdk 35
+        targetSdk 36
         versionCode 126
         versionName "1.1.10"
 
@@ -33,7 +35,9 @@ android {
         release {
             // applies signing configuration for the release build
             signingConfig signingConfigs.release
-            // minification and obfuscation is disabled for this open source app
+            // keep shrinking and obfuscation disabled for this small open source app
+            minifyEnabled false
+            shrinkResources false
         }
         debug {
             // standard debug defaults are used
@@ -51,16 +55,17 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+}
 
-    kotlinOptions {
-        // defines the java virtual machine compatibility version
-        jvmTarget = "17"
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("17")
     }
 }
 
 dependencies {
     // imports the kotlin bill of materials to align all kotlin library versions
-    implementation platform("org.jetbrains.kotlin:kotlin-bom:1.9.24")
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:2.2.21")
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     // core and ui foundation libraries
