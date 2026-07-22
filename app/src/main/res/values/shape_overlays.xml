@@ -2,6 +2,6 @@
 <resources>
     <style name="Shape.App.Corner.Small" parent="ShapeAppearance.Material3.Corner.Small">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">8dp</item>
+        <item name="cornerSize">@dimen/small_corner_radius</item>
     </style>
 </resources>
