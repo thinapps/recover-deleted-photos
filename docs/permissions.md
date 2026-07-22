@@ -1,6 +1,6 @@
 # Permissions
 
-Recover Deleted Photos currently targets Android 13 and later for scanning. This document records the permission behavior in version 1.1.8 before the flow is revised.
+Recover Deleted Photos currently targets Android 13 and later for scanning. This document records the permission behavior in version 1.1.9.
 
 ## Declared permissions
 
@@ -11,6 +11,8 @@ The manifest declares:
 - `READ_MEDIA_AUDIO` for audio on Android 13+
 - `READ_EXTERNAL_STORAGE` with `maxSdkVersion="32"` as a legacy declaration
 
+Version 1.1.9 does not add, remove, or broaden any manifest permissions.
+
 The app does not currently declare `READ_MEDIA_VISUAL_USER_SELECTED` for Android 14+ Selected Photos Access.
 
 The Home and Scan screens block scanning below Android 13, so the legacy permission is not currently used by the active scan flow.
@@ -19,7 +21,7 @@ The Home and Scan screens block scanning below Android 13, so the legacy permiss
 
 Photos, videos, and audio use separate Android permissions. Android can show one combined dialog for image and video access only when both permissions are requested together.
 
-This app currently requests only the selected type:
+This app requests only the selected type:
 
 - Photos requests `READ_MEDIA_IMAGES`
 - Videos requests `READ_MEDIA_VIDEO`
@@ -34,12 +36,14 @@ The Home screen requests one permission through `ActivityResultContracts.Request
 1. The user selects Photos, Videos, or Audio.
 2. The app checks the permission for that type.
 3. When granted, the app opens the Scan screen.
-4. Otherwise, the first attempt launches the Android permission dialog.
-5. After a denial, the main action opens the app's Android settings page.
+4. Otherwise, the first attempt for that permission launches the Android permission dialog.
+5. After that same permission is denied, its main action opens the app's Android settings page.
 
-The Home screen currently uses one temporary `hasRequestedOnce` Boolean for all three media types. After one permission is denied, switching to another type can open Settings even though that different permission has never been requested. The flag resets when the Home view is destroyed and is not persisted.
+The Home screen tracks requested permissions separately. Denying Photos does not prevent the app from normally requesting Videos or Audio for the first time.
 
-The Home screen does not refresh its button label in `onResume`. Permission is checked again when the button is pressed, so the action still works after access is granted in Settings, but its label can temporarily be stale.
+The request history is temporary and resets when the Home view is destroyed. It is not stored between app sessions.
+
+The Home screen refreshes its button label in `onResume`, so returning from Android settings immediately reflects whether the selected permission is now granted.
 
 ## Scan screen flow
 
@@ -68,30 +72,31 @@ Audio access is separate and is not affected by Selected Photos Access.
 
 ## Recovered file viewers
 
-The Recovered Photos/Videos viewer currently checks only `READ_MEDIA_IMAGES`, then queries both image and video collections.
+The Recovered Photos/Videos viewer checks image and video permissions independently.
 
-Current caveats:
+- image access loads recovered images
+- video access loads recovered videos
+- either permission is sufficient to open the combined viewer
+- collections without permission are skipped
+- permission or provider failures are handled independently per collection
+- the accessible image and video results are merged and sorted newest-first
 
-- video-only permission is not sufficient to enter the combined viewer
-- image permission does not guarantee that the video query is allowed
-- image and video query failures are not handled independently
-- the viewer shows a permission-required message but does not request access itself
+The viewer matches only the exact `Pictures/Recovered` path, with or without MediaStore's trailing slash. It does not include similarly named folders.
 
-The Recovered Audio viewer correctly checks `READ_MEDIA_AUDIO`, but it also only shows a permission-required message instead of requesting access directly.
+The Recovered Audio viewer checks `READ_MEDIA_AUDIO` and matches only the exact `Music/Recovered` path, with or without the trailing slash.
+
+Both viewers still show a permission-required message instead of launching a permission request directly.
 
 ## Recovery writes
 
 Recovery copies are inserted through MediaStore into `Pictures/Recovered` or `Music/Recovered`. On supported Android versions, creating these app-owned entries does not require a separate broad write-storage permission. Reading the source still depends on the relevant media permission and URI access remaining valid.
 
-## Pending corrections
+## Deferred permission work
 
-The next permission-focused release should consider:
+A later permission-focused release may add:
 
-- replacing the global Home-screen request flag with per-permission handling
-- adding explicit Android 14+ partial-access handling
-- distinguishing full, partial, and denied visual access
-- allowing users to manage or expand selected photo/video access
-- checking image and video permissions independently in the recovered viewer
-- querying only collections the app can access
-- handling each recovered-viewer query failure safely
-- refreshing visible permission state after returning from Settings
+- explicit Android 14+ partial-access handling with `READ_MEDIA_VISUAL_USER_SELECTED`
+- separate full, partial, and denied visual-access states
+- an in-app way to review or expand selected photo/video access
+
+These changes are intentionally deferred and are not part of version 1.1.9.
