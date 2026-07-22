@@ -50,15 +50,15 @@
     </style>
 
     <style name="TextAppearance.App.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">@dimen/dialog_title_text_size</item>
     </style>
 
     <style name="TextAppearance.App.Dialog.Body" parent="MaterialAlertDialog.Material3.Body.Text">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/dialog_body_text_size</item>
     </style>
 
     <style name="Widget.App.Button.Dialog" parent="Widget.Material3.Button.TextButton.Dialog">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/dialog_button_text_size</item>
     </style>
 
     <!-- overlay for radio buttons: ring uses onSurface, center uses white surface, dot uses primary -->
