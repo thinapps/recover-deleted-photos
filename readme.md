@@ -4,7 +4,7 @@
 
 ### 1.2.0
 - upgraded the Android build toolchain to AGP 8.10.1, Kotlin 2.2.21, Gradle 8.11.1, and Java 17
-- updated compile and target SDK levels to Android 16 / API 36 without changing media permissions
+- updated compile and target SDK levels to Android 16 / API 36 ahead of Google Play's August 31, 2026 requirement for new apps and app updates, without changing media permissions
 - enabled edge-to-edge display with system bar and display-cutout insets while preserving existing navigation cleanup
 
 ### 1.1.10
@@ -217,7 +217,6 @@
 - ResultsFragment: implemented dedicated `exitAndCleanup()` routine to ensure `vm.results` are cleared when exiting via the Up (Back) action
 - ScanFragment: Increased the visible duration of the "Cancelling..." state and navigation delay from 450ms to 1000ms
 - added semi-transparent dark circular background "halo" (`bg_checkbox_halo.xml`) to the selection checkboxes in grid view (`item_media_grid.xml`)
-
 ### 0.17.6
 - Up (back) arrow in the toolbar on both Scan and Results screens now executes the proper back-stack and cancellation logic
 - replaced Snackbar notification for denied permissions on the Home screen with "Grant Access in Settings" CTA when access is needed
