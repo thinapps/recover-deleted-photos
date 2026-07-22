@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="24dp"
+    android:padding="@dimen/space_24"
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:layout_width="match_parent"
@@ -24,9 +24,9 @@
 
         <FrameLayout
             android:id="@+id/pulseContainer"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_marginTop="12dp">
+            android:layout_width="@dimen/scan_pulse_size"
+            android:layout_height="@dimen/scan_pulse_size"
+            android:layout_marginTop="@dimen/space_12">
 
             <View
                 android:id="@+id/pulse1"
@@ -53,7 +53,7 @@
                 android:layout_gravity="center"
                 android:text="0"
                 android:textStyle="bold"
-                android:textSize="36sp"
+                android:textSize="@dimen/scan_count_text_size"
                 android:fontFamily="monospace"
                 android:textColor="@color/md_blue_700" />
         </FrameLayout>
@@ -61,7 +61,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cancelButton"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/space_24"
             android:text="@string/cancel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -71,11 +71,11 @@
     <LinearLayout
         android:id="@+id/stateContainer"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="@dimen/layout_zero"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:padding="@dimen/space_24"
         android:visibility="gone">
 
         <TextView
@@ -88,21 +88,21 @@
             android:id="@+id/stateMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"/>
+            android:paddingTop="@dimen/space_8"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/statePrimary"
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="@dimen/space_16"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/stateSecondary"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/space_8"
             android:visibility="gone"/>
     </LinearLayout>
 
