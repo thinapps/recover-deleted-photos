@@ -24,6 +24,7 @@ import coil.load
 import coil.request.Parameters
 import coil.request.videoFrameMillis
 import coil.size.ViewSizeResolver
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -101,27 +102,37 @@ class ResultsFragment : Fragment() {
             updateRecoverButton()
             adapter.notifyDataSetChanged()
 
+            val appContext = requireContext().applicationContext
             viewLifecycleOwner.lifecycleScope.launch {
                 val folderLabel = getRecoveryFolderLabel(chosen)
                 val toMusic = folderLabel.contains("Music")
 
                 try {
                     val recoveredCount = withContext(Dispatchers.IO) {
-                        Recovery.copyAll(requireContext(), chosen)
+                        Recovery.copyAll(appContext, chosen)
                     }
                     selectedIds.clear()
-                    adapter.notifyDataSetChanged()
-                    SnackbarUtils.showRecovered(requireActivity(), recoveredCount, toMusic)
+                    if (_vb != null) adapter.notifyDataSetChanged()
+                    activity?.let {
+                        SnackbarUtils.showRecovered(it, recoveredCount, toMusic)
+                    }
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
                 } catch (_: Throwable) {
-                    SnackbarUtils.showRecovered(requireActivity(), 0, toMusic)
+                    activity?.let {
+                        SnackbarUtils.showRecovered(it, 0, toMusic)
+                    }
                 } finally {
                     isRecovering = false
-                    vb.recoverButton.isPressed = false
-                    vb.recoverButton.isActivated = false
-                    vb.recoverButton.isSelected = false
-                    updateRecoverButton()
-                    adapter.notifyDataSetChanged()
-                    vb.recoverButton.refreshDrawableState()
+                    val binding = _vb
+                    if (binding != null) {
+                        binding.recoverButton.isPressed = false
+                        binding.recoverButton.isActivated = false
+                        binding.recoverButton.isSelected = false
+                        updateRecoverButton()
+                        adapter.notifyDataSetChanged()
+                        binding.recoverButton.refreshDrawableState()
+                    }
                 }
             }
         }
@@ -219,12 +230,13 @@ class ResultsFragment : Fragment() {
         }
 
         adapter.submitList(sorted) {
+            val binding = _vb ?: return@submitList
             if (sorted.isNotEmpty()) {
-                val lm = vb.list.layoutManager
+                val lm = binding.list.layoutManager
                 (lm as? LinearLayoutManager)?.scrollToPositionWithOffset(0, 0)
-                    ?: vb.list.scrollToPosition(0)
+                    ?: binding.list.scrollToPosition(0)
             }
-            vb.empty.isVisible = sorted.isEmpty()
+            binding.empty.isVisible = sorted.isEmpty()
         }
     }
 
@@ -252,8 +264,8 @@ class ResultsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         _vb = null
+        super.onDestroyView()
     }
 
     // detect audio vs image/video targets for destination folder
