@@ -46,22 +46,22 @@ jobs:
           yes | sdkmanager --licenses
           sdkmanager \
             "build-tools;35.0.0" \
-            "platforms;android-35"
+            "platforms;android-36"
 
       - name: Clean any leftover wrapper jar
         run: rm -f gradle/wrapper/gradle-wrapper.jar
 
-      - name: Download Gradle 8.9
+      - name: Download Gradle 8.11.1
         run: |
           set -euo pipefail
           curl --fail --location --show-error --silent \
-            https://services.gradle.org/distributions/gradle-8.9-bin.zip \
+            https://services.gradle.org/distributions/gradle-8.11.1-bin.zip \
             -o gradle.zip
           unzip -q gradle.zip
-          echo "$PWD/gradle-8.9/bin" >> "$GITHUB_PATH"
+          echo "$PWD/gradle-8.11.1/bin" >> "$GITHUB_PATH"
 
       - name: Generate Gradle Wrapper
-        run: gradle wrapper --gradle-version 8.9
+        run: gradle wrapper --gradle-version 8.11.1
 
       - name: Make Gradle executable
         run: chmod +x gradlew
