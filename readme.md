@@ -2,6 +2,11 @@
 
 ## Changelog
 
+### 1.2.1
+- added an underlined Privacy Policy link below the Home footer
+- opens a Material in-app policy dialog without adding Internet access, another screen, or new permissions
+- documents local MediaStore scanning, temporary scan results, recovery copies, and external recovered-file opening
+
 ### 1.2.0
 - upgraded the Android build toolchain to AGP 8.10.1, Kotlin 2.2.21, Gradle 8.11.1, and Java 17
 - updated compile and target SDK levels to Android 16 / API 36 ahead of Google Play's August 31, 2026 requirement for new apps and app updates, without changing media permissions
@@ -397,7 +402,6 @@
 - restored List view layout with bigger thumbs, metadata stacked to the right, and checkbox floats on the right
 - restored subtle selection overlay in List items for consistent feedback
 - added a background color to the sort/filter bar for better visual separation
-
 ### 0.14.4
 - set grid view as the default layout on scan results
 - restored subtle selection overlay highlight in list mode for consistency
