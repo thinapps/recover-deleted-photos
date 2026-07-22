@@ -1,6 +1,7 @@
 package top.thinapps.recoverdeletedphotos.ui
 
 import android.Manifest
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -28,6 +29,7 @@ import coil.request.Parameters
 import coil.request.videoFrameMillis
 import coil.size.ViewSizeResolver
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.thinapps.recoverdeletedphotos.MainActivity
@@ -43,6 +45,8 @@ class RecoveredFragment : Fragment() {
 
     private var _vb: FragmentRecoveredBinding? = null
     private val vb get() = _vb!!
+    private lateinit var adapter: RecoveredAdapter
+    private var loadJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,34 +66,47 @@ class RecoveredFragment : Fragment() {
         )
 
         vb.recycler.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = RecoveredAdapter { item -> openItem(item) }
+        adapter = RecoveredAdapter { item -> openItem(item) }
         vb.recycler.adapter = adapter
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadRecoveredItems()
+    }
+
+    private fun loadRecoveredItems() {
+        val binding = _vb ?: return
+        val resolver = requireContext().contentResolver
+
+        loadJob?.cancel()
+        adapter.submit(emptyList())
 
         val canReadImages = hasImagePermission()
         val canReadVideos = hasVideoPermission()
         if (!canReadImages && !canReadVideos) {
-            vb.stateMessage.text = getString(R.string.recovered_permission_required)
-            vb.stateMessage.isVisible = true
+            binding.stateMessage.text = getString(R.string.recovered_permission_required)
+            binding.stateMessage.isVisible = true
             return
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            vb.stateMessage.isVisible = true
-            vb.stateMessage.text = getString(R.string.recovered_loading)
+        binding.stateMessage.isVisible = true
+        binding.stateMessage.text = getString(R.string.recovered_loading)
 
+        loadJob = viewLifecycleOwner.lifecycleScope.launch {
             val list = withContext(Dispatchers.IO) {
                 loadItems(
+                    resolver = resolver,
                     includeImages = canReadImages,
                     includeVideos = canReadVideos
                 )
             }
 
-            if (!isAdded) return@launch
-
+            val currentBinding = _vb ?: return@launch
             if (list.isEmpty()) {
-                vb.stateMessage.text = getString(R.string.recovered_empty)
+                currentBinding.stateMessage.text = getString(R.string.recovered_empty)
             } else {
-                vb.stateMessage.isVisible = false
+                currentBinding.stateMessage.isVisible = false
                 adapter.submit(list)
             }
         }
@@ -120,8 +137,11 @@ class RecoveredFragment : Fragment() {
     }
 
     // query accessible Photos + Videos under the exact Pictures/Recovered path
-    private fun loadItems(includeImages: Boolean, includeVideos: Boolean): List<MediaItem> {
-        val resolver = requireContext().contentResolver
+    private fun loadItems(
+        resolver: ContentResolver,
+        includeImages: Boolean,
+        includeVideos: Boolean
+    ): List<MediaItem> {
         val out = mutableListOf<MediaItem>()
 
         fun queryCollection(collection: Uri) {
@@ -346,6 +366,8 @@ class RecoveredFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        loadJob?.cancel()
+        loadJob = null
         _vb = null
         super.onDestroyView()
     }
