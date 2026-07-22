@@ -65,7 +65,9 @@ class RecoveredFragment : Fragment() {
         val adapter = RecoveredAdapter { item -> openItem(item) }
         vb.recycler.adapter = adapter
 
-        if (!hasPermission()) {
+        val canReadImages = hasImagePermission()
+        val canReadVideos = hasVideoPermission()
+        if (!canReadImages && !canReadVideos) {
             vb.stateMessage.text = getString(R.string.recovered_permission_required)
             vb.stateMessage.isVisible = true
             return
@@ -75,7 +77,12 @@ class RecoveredFragment : Fragment() {
             vb.stateMessage.isVisible = true
             vb.stateMessage.text = getString(R.string.recovered_loading)
 
-            val list = withContext(Dispatchers.IO) { loadItems() }
+            val list = withContext(Dispatchers.IO) {
+                loadItems(
+                    includeImages = canReadImages,
+                    includeVideos = canReadVideos
+                )
+            }
 
             if (!isAdded) return@launch
 
@@ -88,20 +95,32 @@ class RecoveredFragment : Fragment() {
         }
     }
 
-    private fun hasPermission(): Boolean {
+    private fun hasImagePermission(): Boolean {
         val perm = if (Build.VERSION.SDK_INT < 33) {
             Manifest.permission.READ_EXTERNAL_STORAGE
         } else {
             Manifest.permission.READ_MEDIA_IMAGES
         }
+        return hasPermission(perm)
+    }
 
+    private fun hasVideoPermission(): Boolean {
+        val perm = if (Build.VERSION.SDK_INT < 33) {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        } else {
+            Manifest.permission.READ_MEDIA_VIDEO
+        }
+        return hasPermission(perm)
+    }
+
+    private fun hasPermission(perm: String): Boolean {
         return ContextCompat.checkSelfPermission(
             requireContext(), perm
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    // query Photos + Videos under Pictures/Recovered
-    private fun loadItems(): List<MediaItem> {
+    // query accessible Photos + Videos under the exact Pictures/Recovered path
+    private fun loadItems(includeImages: Boolean, includeVideos: Boolean): List<MediaItem> {
         val resolver = requireContext().contentResolver
         val out = mutableListOf<MediaItem>()
 
@@ -114,47 +133,57 @@ class RecoveredFragment : Fragment() {
                 MediaStore.MediaColumns.MIME_TYPE
             )
 
-            resolver.query(
-                collection,
-                projection,
-                "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?",
-                arrayOf("Pictures/Recovered%"),
-                "${MediaStore.MediaColumns.DATE_ADDED} DESC"
-            )?.use { c ->
-                val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-                val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
-                val sizeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
-                val dateIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
-                val mimeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+            try {
+                resolver.query(
+                    collection,
+                    projection,
+                    "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
+                    arrayOf("Pictures/Recovered", "Pictures/Recovered/"),
+                    "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
+                )?.use { c ->
+                    val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                    val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                    val sizeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
+                    val dateIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
+                    val mimeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
 
-                while (c.moveToNext()) {
-                    val id = c.getLong(idIdx)
-                    val name = c.getString(nameIdx) ?: "Unnamed"
-                    val size = c.getLong(sizeIdx)
-                    val date = c.getLong(dateIdx)
-                    val mime = c.getString(mimeIdx) ?: ""
-                    val uri = ContentUris.withAppendedId(collection, id)
+                    while (c.moveToNext()) {
+                        val id = c.getLong(idIdx)
+                        val name = c.getString(nameIdx) ?: "Unnamed"
+                        val size = c.getLong(sizeIdx)
+                        val date = c.getLong(dateIdx)
+                        val mime = c.getString(mimeIdx) ?: ""
+                        val uri = ContentUris.withAppendedId(collection, id)
 
-                    val item = MediaItem(
-                        id = id,
-                        uri = uri,
-                        displayName = name,
-                        sizeBytes = size,
-                        dateAddedSec = date,
-                        origin = MediaItem.Origin.NORMAL,
-                        isProbablyVideo = mime.startsWith("video/"),
-                        mimeType = mime
-                    )
+                        val item = MediaItem(
+                            id = id,
+                            uri = uri,
+                            displayName = name,
+                            sizeBytes = size,
+                            dateAddedSec = date,
+                            origin = MediaItem.Origin.NORMAL,
+                            isProbablyVideo = mime.startsWith("video/"),
+                            mimeType = mime
+                        )
 
-                    out += item
+                        out += item
+                    }
                 }
+            } catch (_: SecurityException) {
+                // permission can change while the viewer is loading; skip this collection
+            } catch (_: IllegalArgumentException) {
+                // skip unsupported or inaccessible provider queries
             }
         }
 
-        queryCollection(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        queryCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        if (includeImages) queryCollection(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        if (includeVideos) queryCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
 
-        return out
+        return out.sortedWith(
+            compareByDescending<MediaItem> { it.dateAddedSec }
+                .thenByDescending { it.id }
+                .thenByDescending { it.uri.toString() }
+        )
     }
 
     private fun openItem(item: MediaItem) {
