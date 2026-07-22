@@ -2,6 +2,11 @@
 
 ## Changelog
 
+### 1.2.0
+- upgraded the Android build toolchain to AGP 8.10.1, Kotlin 2.2.21, Gradle 8.11.1, and Java 17
+- updated compile and target SDK levels to Android 16 / API 36 without changing media permissions
+- enabled edge-to-edge display with system bar and display-cutout insets while preserving existing navigation cleanup
+
 ### 1.1.10
 - made recovery cancellation and completion cleanup safe across navigation and view recreation
 - refreshed recovered media viewers on resume and cancelled stale loading jobs
@@ -525,7 +530,7 @@
 
 ### 0.7.3
 - added advanced sorting options: Date (Newest/Oldest), Size (Largest/Smallest), Name (A–Z/Z–A)
-- automatically scrolls results to top when changing sort order
+- automatically scrolls results to top after users change sort order
 - polished layout spacing and spinner prompt for better UX
 
 ### 0.7.2
