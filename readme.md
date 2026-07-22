@@ -2,6 +2,11 @@
 
 ## Changelog
 
+### 1.1.9
+- tracked photo, video, and audio permission requests independently and refreshed permission state after Settings
+- fixed recovered media viewers to use available permissions, exact recovery folders, and stable newest-first ordering
+- used localized selection counts and showed recovery failures instead of silently ignoring them
+
 ### 1.1.8
 - excluded files in `Pictures/Recovered` and `Music/Recovered` from future scans
 - kept normal and trashed originals included while preventing recovered copies from inflating scan counts
