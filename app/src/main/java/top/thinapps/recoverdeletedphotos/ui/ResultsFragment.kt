@@ -113,7 +113,7 @@ class ResultsFragment : Fragment() {
                     adapter.notifyDataSetChanged()
                     SnackbarUtils.showRecovered(requireActivity(), recoveredCount, toMusic)
                 } catch (_: Throwable) {
-                    // optional: handle copy failure
+                    SnackbarUtils.showRecovered(requireActivity(), 0, toMusic)
                 } finally {
                     isRecovering = false
                     vb.recoverButton.isPressed = false
@@ -247,7 +247,7 @@ class ResultsFragment : Fragment() {
         val count = selectedIds.size
         vb.recoverButton.isEnabled = count > 0
         vb.recoverButton.text = if (count > 0)
-            getString(R.string.recover_selected) + " (" + count + ")"
+            getString(R.string.recover_selected_count, count)
         else getString(R.string.recover_selected)
     }
 
