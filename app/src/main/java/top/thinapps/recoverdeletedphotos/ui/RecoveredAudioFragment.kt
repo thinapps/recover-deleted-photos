@@ -1,6 +1,7 @@
 package top.thinapps.recoverdeletedphotos.ui
 
 import android.Manifest
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -20,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.thinapps.recoverdeletedphotos.MainActivity
@@ -35,6 +37,8 @@ class RecoveredAudioFragment : Fragment() {
 
     private var _vb: FragmentRecoveredAudioBinding? = null
     private val vb get() = _vb!!
+    private lateinit var adapter: RecoveredAudioAdapter
+    private var loadJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,27 +58,39 @@ class RecoveredAudioFragment : Fragment() {
         )
 
         vb.recycler.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = RecoveredAudioAdapter { item -> openItem(item) }
+        adapter = RecoveredAudioAdapter { item -> openItem(item) }
         vb.recycler.adapter = adapter
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadRecoveredItems()
+    }
+
+    private fun loadRecoveredItems() {
+        val binding = _vb ?: return
+        val resolver = requireContext().contentResolver
+
+        loadJob?.cancel()
+        adapter.submit(emptyList())
 
         if (!hasPermission()) {
-            vb.stateMessage.text = getString(R.string.recovered_permission_required)
-            vb.stateMessage.isVisible = true
+            binding.stateMessage.text = getString(R.string.recovered_permission_required)
+            binding.stateMessage.isVisible = true
             return
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            vb.stateMessage.isVisible = true
-            vb.stateMessage.text = getString(R.string.recovered_loading)
+        binding.stateMessage.isVisible = true
+        binding.stateMessage.text = getString(R.string.recovered_loading)
 
-            val list = withContext(Dispatchers.IO) { loadItems() }
+        loadJob = viewLifecycleOwner.lifecycleScope.launch {
+            val list = withContext(Dispatchers.IO) { loadItems(resolver) }
 
-            if (!isAdded) return@launch
-
+            val currentBinding = _vb ?: return@launch
             if (list.isEmpty()) {
-                vb.stateMessage.text = getString(R.string.recovered_audio_empty)
+                currentBinding.stateMessage.text = getString(R.string.recovered_audio_empty)
             } else {
-                vb.stateMessage.isVisible = false
+                currentBinding.stateMessage.isVisible = false
                 adapter.submit(list)
             }
         }
@@ -92,10 +108,8 @@ class RecoveredAudioFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun loadItems(): List<MediaItem> {
-        val resolver = requireContext().contentResolver
+    private fun loadItems(resolver: ContentResolver): List<MediaItem> {
         val out = mutableListOf<MediaItem>()
-
         val collection: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
         val projection = arrayOf(
@@ -106,40 +120,46 @@ class RecoveredAudioFragment : Fragment() {
             MediaStore.MediaColumns.MIME_TYPE
         )
 
-        resolver.query(
-            collection,
-            projection,
-            "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
-            arrayOf("Music/Recovered", "Music/Recovered/"),
-            "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
-        )?.use { c ->
-            val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-            val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
-            val sizeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
-            val dateIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
-            val mimeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+        try {
+            resolver.query(
+                collection,
+                projection,
+                "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
+                arrayOf("Music/Recovered", "Music/Recovered/"),
+                "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
+            )?.use { c ->
+                val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                val sizeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
+                val dateIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
+                val mimeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
 
-            while (c.moveToNext()) {
-                val id = c.getLong(idIdx)
-                val name = c.getString(nameIdx) ?: "Unnamed"
-                val size = c.getLong(sizeIdx)
-                val date = c.getLong(dateIdx)
-                val mime = c.getString(mimeIdx) ?: ""
-                val uri = ContentUris.withAppendedId(collection, id)
+                while (c.moveToNext()) {
+                    val id = c.getLong(idIdx)
+                    val name = c.getString(nameIdx) ?: "Unnamed"
+                    val size = c.getLong(sizeIdx)
+                    val date = c.getLong(dateIdx)
+                    val mime = c.getString(mimeIdx) ?: ""
+                    val uri = ContentUris.withAppendedId(collection, id)
 
-                val item = MediaItem(
-                    id = id,
-                    uri = uri,
-                    displayName = name,
-                    sizeBytes = size,
-                    dateAddedSec = date,
-                    origin = MediaItem.Origin.NORMAL,
-                    isProbablyVideo = false,
-                    mimeType = mime
-                )
+                    val item = MediaItem(
+                        id = id,
+                        uri = uri,
+                        displayName = name,
+                        sizeBytes = size,
+                        dateAddedSec = date,
+                        origin = MediaItem.Origin.NORMAL,
+                        isProbablyVideo = false,
+                        mimeType = mime
+                    )
 
-                out += item
+                    out += item
+                }
             }
+        } catch (_: SecurityException) {
+            // permission can change while the viewer is loading; return no items
+        } catch (_: IllegalArgumentException) {
+            // return no items for unsupported or inaccessible provider queries
         }
 
         return out
@@ -156,7 +176,7 @@ class RecoveredAudioFragment : Fragment() {
 
         try {
             startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Toast.makeText(
                 ctx,
                 getString(R.string.recovered_open_failed),
@@ -229,6 +249,8 @@ class RecoveredAudioFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        loadJob?.cancel()
+        loadJob = null
         _vb = null
         super.onDestroyView()
     }
