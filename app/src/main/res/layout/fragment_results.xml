@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="0dp"
-    android:paddingBottom="12dp"
+    android:paddingStart="@dimen/space_16"
+    android:paddingEnd="@dimen/space_16"
+    android:paddingTop="@dimen/layout_zero"
+    android:paddingBottom="@dimen/space_12"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -13,32 +13,32 @@
         android:id="@+id/sortBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
+        android:minHeight="@dimen/minimum_touch_target"
         android:orientation="horizontal"
-        android:paddingStart="0dp"
-        android:paddingEnd="0dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
+        android:paddingStart="@dimen/layout_zero"
+        android:paddingEnd="@dimen/layout_zero"
+        android:paddingTop="@dimen/space_4"
+        android:paddingBottom="@dimen/space_4"
         android:background="@color/md_surface_variant"
-        android:elevation="1dp"
-        android:layout_marginBottom="8dp">
+        android:elevation="@dimen/elevation_low"
+        android:layout_marginBottom="@dimen/space_8">
 
         <!-- spinner control that allows user to sort results by date, size, or name -->
         <Spinner
             android:id="@+id/sortDropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="0dp"
-            android:paddingEnd="0dp"
-            android:paddingLeft="0dp"
-            android:paddingRight="0dp"
+            android:paddingStart="@dimen/layout_zero"
+            android:paddingEnd="@dimen/layout_zero"
+            android:paddingLeft="@dimen/layout_zero"
+            android:paddingRight="@dimen/layout_zero"
             android:prompt="@string/results_title" />
     </LinearLayout>
 
     <!-- main content area showing recycler view list of recovered images or empty state -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="@dimen/layout_zero"
         android:layout_weight="1">
 
         <!-- grid or list of media results displayed dynamically -->
@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingBottom="72dp" />
+            android:paddingBottom="@dimen/results_list_bottom_padding" />
 
         <!-- message shown when there are no results to display -->
         <TextView
@@ -65,8 +65,8 @@
         style="@style/Widget.Material3.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:minHeight="48dp"
+        android:layout_marginTop="@dimen/space_6"
+        android:minHeight="@dimen/minimum_touch_target"
         android:text="@string/recover_selected"
         android:enabled="false" />
 </LinearLayout>
