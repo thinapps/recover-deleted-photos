@@ -2,6 +2,11 @@
 
 ## Changelog
 
+### 1.1.10
+- made recovery cancellation and completion cleanup safe across navigation and view recreation
+- refreshed recovered media viewers on resume and cancelled stale loading jobs
+- handled recovered audio permission and provider query failures safely
+
 ### 1.1.9
 - tracked photo, video, and audio permission requests independently and refreshed permission state after Settings
 - fixed recovered media viewers to use available permissions, exact recovery folders, and stable newest-first ordering
