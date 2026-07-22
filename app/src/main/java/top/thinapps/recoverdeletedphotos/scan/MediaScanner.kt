@@ -44,7 +44,8 @@ class MediaScanner(private val context: Context) {
                         name = MediaStore.Images.Media.DISPLAY_NAME,
                         size = MediaStore.Images.Media.SIZE,
                         datePrimary = MediaStore.Images.Media.DATE_ADDED,
-                        dateTaken = MediaStore.Images.Media.DATE_TAKEN
+                        dateTaken = MediaStore.Images.Media.DATE_TAKEN,
+                        excludedPath = "Pictures/Recovered"
                     )
                 )
             }
@@ -56,7 +57,8 @@ class MediaScanner(private val context: Context) {
                         name = MediaStore.Video.Media.DISPLAY_NAME,
                         size = MediaStore.Video.Media.SIZE,
                         datePrimary = MediaStore.Video.Media.DATE_ADDED,
-                        dateTaken = MediaStore.Video.Media.DATE_TAKEN
+                        dateTaken = MediaStore.Video.Media.DATE_TAKEN,
+                        excludedPath = "Pictures/Recovered"
                     )
                 )
             }
@@ -68,7 +70,8 @@ class MediaScanner(private val context: Context) {
                         name = MediaStore.Audio.Media.DISPLAY_NAME,
                         size = MediaStore.Audio.Media.SIZE,
                         datePrimary = MediaStore.Audio.Media.DATE_ADDED,
-                        dateTaken = null
+                        dateTaken = null,
+                        excludedPath = "Music/Recovered"
                     )
                 )
             }
@@ -170,13 +173,21 @@ class MediaScanner(private val context: Context) {
         }
     }
 
-    // selection helper adds IS_PENDING exclusion on api 29
+    // selection helper excludes pending rows and this app's recovery output folders
     private fun selectionFor(q: QuerySpec): Pair<String?, Array<String>?> {
         var sel = SEL_BASE
         val args = SEL_ARGS_BASE.toMutableList()
 
         if (Build.VERSION.SDK_INT == 29) {
             sel += " AND ${MediaStore.MediaColumns.IS_PENDING} = 0"
+        }
+
+        if (Build.VERSION.SDK_INT >= 29) {
+            sel +=
+                " AND (${MediaStore.MediaColumns.RELATIVE_PATH} IS NULL OR " +
+                    "${MediaStore.MediaColumns.RELATIVE_PATH} NOT IN (?, ?))"
+            args += q.excludedPath
+            args += "${q.excludedPath}/"
         }
 
         return sel to args.toTypedArray()
@@ -338,7 +349,8 @@ class MediaScanner(private val context: Context) {
         val name: String,
         val size: String,
         val datePrimary: String,
-        val dateTaken: String?
+        val dateTaken: String?,
+        val excludedPath: String
     ) {
         fun sortCol(): String = datePrimary
     }
