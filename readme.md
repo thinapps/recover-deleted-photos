@@ -54,7 +54,7 @@
 ### 1.1.0
 - added a new in-app viewer for recovered photos and videos
 - browse all files saved in the `Pictures/Recovered` directory directly inside the app
-- wired the Home screen “Recovered Photos/Videos” button to the new viewer
+- wired the Home screen “Recovered Photos/Videos” button to navigate to the new viewer
 - kept the “Recovered Audio” button as a placeholder for a future update
 - added new UI strings and navigation entries needed for the recovered viewer
 
@@ -217,6 +217,7 @@
 - ResultsFragment: implemented dedicated `exitAndCleanup()` routine to ensure `vm.results` are cleared when exiting via the Up (Back) action
 - ScanFragment: Increased the visible duration of the "Cancelling..." state and navigation delay from 450ms to 1000ms
 - added semi-transparent dark circular background "halo" (`bg_checkbox_halo.xml`) to the selection checkboxes in grid view (`item_media_grid.xml`)
+
 ### 0.17.6
 - Up (back) arrow in the toolbar on both Scan and Results screens now executes the proper back-stack and cancellation logic
 - replaced Snackbar notification for denied permissions on the Home screen with "Grant Access in Settings" CTA when access is needed
