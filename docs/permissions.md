@@ -1,6 +1,6 @@
 # Permissions
 
-Recover Deleted Photos currently targets Android 13 and later for scanning. This document records the permission behavior in version 1.1.10.
+Recover Deleted Photos version 1.2.0 targets Android 16 while keeping its scanning interface limited to Android 13 and later.
 
 ## Declared permissions
 
@@ -11,7 +11,7 @@ The manifest declares:
 - `READ_MEDIA_AUDIO` for audio on Android 13+
 - `READ_EXTERNAL_STORAGE` with `maxSdkVersion="32"` as a legacy declaration
 
-Version 1.1.10 does not add, remove, or broaden any manifest permissions.
+Version 1.2.0 does not add, remove, or broaden any manifest permissions.
 
 The app does not currently declare `READ_MEDIA_VISUAL_USER_SELECTED` for Android 14+ Selected Photos Access.
 
@@ -103,4 +103,4 @@ A later permission-focused release may add:
 - separate full, partial, and denied visual-access states
 - an in-app way to review or expand selected photo/video access
 
-These changes are intentionally deferred and are not part of version 1.1.10.
+These changes are intentionally deferred and are not part of version 1.2.0.
