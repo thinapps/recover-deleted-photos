@@ -54,7 +54,7 @@
 ### 1.1.0
 - added a new in-app viewer for recovered photos and videos
 - browse all files saved in the `Pictures/Recovered` directory directly inside the app
-- wired the Home screen “Recovered Photos/Videos” button to navigate to the new viewer
+- wired the Home screen “Recovered Photos/Videos” button to the new viewer
 - kept the “Recovered Audio” button as a placeholder for a future update
 - added new UI strings and navigation entries needed for the recovered viewer
 
@@ -390,7 +390,7 @@
 - increased list view thumbnail size to 96×96 and reduced filename font size slightly
 - adjusted padding around each result item for even spacing on all sides
 - refined checkbox positioning and margins for cleaner alignment
-- lightened selection overlay tint for a softer pastel visual tone
+- lightened selection overlay tint for a softer pastel tone
 - restored visible trash badge styling with proper rounded red background
 
 ### 0.14.5
