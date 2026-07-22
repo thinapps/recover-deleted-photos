@@ -4,7 +4,7 @@
         android:type="radial"
         android:centerX="0.5"
         android:centerY="0.5"
-        android:gradientRadius="100dp"
+        android:gradientRadius="@dimen/scan_pulse_radius"
         android:startColor="@color/md_blue_200"
         android:centerColor="@color/md_blue_50"
         android:endColor="@android:color/transparent" />
