@@ -21,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import coil.load
@@ -322,7 +323,7 @@ class ResultsFragment : Fragment() {
         private val isGrid: () -> Boolean,
         private val onToggleSelect: (MediaItem) -> Unit,
         private val isSelected: (Long) -> Boolean
-    ) : androidx.recyclerview.widget.ListAdapter<MediaItem, RecyclerView.ViewHolder>(
+    ) : ListAdapter<MediaItem, RecyclerView.ViewHolder>(
         object : DiffUtil.ItemCallback<MediaItem>() {
             override fun areItemsTheSame(oldItem: MediaItem, newItem: MediaItem) = oldItem.id == newItem.id
             override fun areContentsTheSame(oldItem: MediaItem, newItem: MediaItem) = oldItem == newItem
