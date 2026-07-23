@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// data class for recovered media, made parcelable for fragment argument passing
+// data class for scanned media, made parcelable for fragment argument passing
 @Parcelize
 data class MediaItem(
     val id: Long,
