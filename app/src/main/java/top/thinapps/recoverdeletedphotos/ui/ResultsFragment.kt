@@ -221,8 +221,8 @@ class ResultsFragment : Fragment() {
         val collator = Collator.getInstance().apply { strength = Collator.PRIMARY }
 
         val sorted = when (currentSort) {
-            Sort.DATE_DESC -> base.sortedByDescending { it.dateAddedSec }
-            Sort.DATE_ASC -> base.sortedBy { it.dateAddedSec }
+            Sort.DATE_DESC -> base.sortedByDescending { it.effectiveDateMs }
+            Sort.DATE_ASC -> base.sortedBy { it.effectiveDateMs }
             Sort.SIZE_DESC -> base.sortedByDescending { it.sizeBytes }
             Sort.SIZE_ASC -> base.sortedBy { it.sizeBytes }
             Sort.NAME_ASC -> base.sortedWith(compareBy(collator) { it.displayName ?: "" })
