@@ -16,6 +16,7 @@
 
     <!-- component sizes -->
     <dimen name="standard_icon_size">24dp</dimen>
+    <dimen name="empty_state_icon_size">96dp</dimen>
     <dimen name="home_icon_size">160dp</dimen>
     <dimen name="scan_pulse_size">200dp</dimen>
     <dimen name="scan_pulse_radius">100dp</dimen>
