@@ -24,9 +24,12 @@ data class MediaItem(
     // defines if the file was normal or in the system trash folder
     enum class Origin { NORMAL, TRASHED }
 
+    val effectiveDateMs: Long
+        get() = dateTakenMs ?: dateAddedSec * 1000
+
     // computed property to return a user-friendly date string for display
     val dateReadable: String
-        get() = sharedFormatter.format(Date(dateAddedSec * 1000))
+        get() = sharedFormatter.format(Date(effectiveDateMs))
 
     companion object {
         // singleton date formatter used to ensure consistent date output across locales
