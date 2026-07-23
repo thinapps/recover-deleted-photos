@@ -107,7 +107,7 @@
     <string name="recovered_empty">No recovered files found.</string>
     <string name="recovered_open_failed">Unable to open this file.</string>
 
-    <!-- recovered audio viewer (1.1.1) -->
+    <!-- recovered audio viewer -->
     <string name="recovered_audio_title">Recovered Audio</string>
     <string name="recovered_audio_empty">No recovered audio files found.</string>
 
