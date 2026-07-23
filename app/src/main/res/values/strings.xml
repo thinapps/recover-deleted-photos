@@ -74,7 +74,7 @@
     <string name="try_again">Try again</string>
 
     <string name="no_media_title">Nothing found</string>
-    <string name="no_media_msg">No deleted files were detected on this device.</string>
+    <string name="no_media_msg">No media was found for the selected file type.</string>
 
     <string name="retry">Retry</string>
     <string name="go_home">Home</string>
