@@ -5,6 +5,7 @@
 ### 1.2.2
 - standardized the Home footer message around local core functionality and open-source feedback
 - expanded privacy disclosures for scan limitations, shared recovered-file storage, and external app handling
+- clarified the empty-state icon dimension resource without changing its appearance
 
 ### 1.2.1
 - added an underlined Privacy Policy link below the Home footer
@@ -349,7 +350,7 @@
 ### 0.15.5
 - Recovery.kt: added `DATE_TAKEN` field for image/video recovery to preserve original timestamp
 - Recovery.kt: specified `"w"` mode in `openOutputStream` for explicit write intent
-- Recovery.kt: no logic or behavior changes elsewhere, maintains scoped storage compliance
+- no logic or behavior changes elsewhere, maintains scoped storage compliance
 
 ### 0.15.4
 - build.gradle: removed the kotlin dependency alignment block and now rely on kotlin bom only
