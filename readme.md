@@ -8,7 +8,7 @@
 
 ### 1.2.1
 - added an underlined Privacy Policy link below the Home footer
-- opens a Material in-app policy dialog without adding Internet access, another screen, or new permissions
+- added a Material in-app policy dialog without adding Internet access, another screen, or new permissions
 - centralized interface dimensions in `dimens.xml`
 
 ### 1.2.0
