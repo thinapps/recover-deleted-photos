@@ -139,7 +139,7 @@ class HomeFragment : Fragment() {
         // subtle entrance animation for title and subtitle
         val interp = FastOutSlowInInterpolator()
 
-        vb.title.translationY = 12f
+        vb.title.translationY = resources.getDimension(R.dimen.space_12)
         vb.title.alpha = 0f
         vb.title.animate()
             .translationY(0f)
