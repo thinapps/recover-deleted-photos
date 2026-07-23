@@ -225,8 +225,8 @@ class ResultsFragment : Fragment() {
             Sort.DATE_ASC -> base.sortedBy { it.effectiveDateMs }
             Sort.SIZE_DESC -> base.sortedByDescending { it.sizeBytes }
             Sort.SIZE_ASC -> base.sortedBy { it.sizeBytes }
-            Sort.NAME_ASC -> base.sortedWith(compareBy(collator) { it.displayName ?: "" })
-            Sort.NAME_DESC -> base.sortedWith(compareBy(collator) { it.displayName ?: "" }).asReversed()
+            Sort.NAME_ASC -> base.sortedWith(compareBy(collator) { it.displayName })
+            Sort.NAME_DESC -> base.sortedWith(compareBy(collator) { it.displayName }).asReversed()
         }
 
         adapter.submitList(sorted) {
