@@ -6,6 +6,7 @@
 - standardized the Home footer message around local core functionality and open-source feedback
 - expanded privacy disclosures for scan limitations, shared recovered-file storage, and external app handling
 - clarified the empty-state icon dimension resource without changing its appearance
+- improved scan messaging and preserved original photo and video timestamps during recovery
 
 ### 1.2.1
 - added an underlined Privacy Policy link below the Home footer
@@ -64,7 +65,7 @@
 ### 1.1.0
 - added a new in-app viewer for recovered photos and videos
 - browse all files saved in the `Pictures/Recovered` directory directly inside the app
-- wired the Home screen “Recovered Photos/Videos” button to the new viewer
+- wired the Home screen “Recovered Photos/Videos” button to navigate to the new viewer
 - kept the “Recovered Audio” button as a placeholder for a future update
 - added new UI strings and navigation entries needed for the recovered viewer
 
