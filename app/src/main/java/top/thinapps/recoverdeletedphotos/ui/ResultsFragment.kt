@@ -274,7 +274,8 @@ class ResultsFragment : Fragment() {
     private fun getRecoveryFolderLabel(chosen: List<MediaItem>): String {
         val cr = requireContext().contentResolver
         val allAudio = chosen.all { item ->
-            val mime = try { cr.getType(item.uri) } catch (_: Exception) { null }
+            val mime = item.mimeType.takeIf { it.isNotBlank() }
+                ?: try { cr.getType(item.uri) } catch (_: Exception) { null }
             mime?.startsWith("audio/") == true
         }
         return if (allAudio) "Music/Recovered" else "Pictures/Recovered"
