@@ -4,7 +4,8 @@ import android.net.Uri
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 // data class for recovered media, made parcelable for fragment argument passing
 @Parcelize
