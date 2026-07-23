@@ -7,6 +7,7 @@
 - expanded privacy disclosures for scan limitations, shared recovered-file storage, and external app handling
 - clarified the empty-state icon dimension resource without changing its appearance
 - improved scan messaging and preserved original photo and video timestamps during recovery
+- applied consistent Privacy Policy dialog styling in dark mode
 
 ### 1.2.1
 - added an underlined Privacy Policy link below the Home footer
