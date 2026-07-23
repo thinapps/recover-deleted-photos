@@ -2,13 +2,17 @@ package top.thinapps.recoverdeletedphotos.ui
 
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.os.CancellationSignal
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.core.content.res.use
@@ -283,7 +287,7 @@ class ResultsFragment : Fragment() {
     }
 
     // load video frames with a graceful fallback
-    private fun loadVideoThumbWithFallback(iv: android.widget.ImageView, uri: android.net.Uri, mime: String?) {
+    private fun loadVideoThumbWithFallback(iv: ImageView, uri: Uri, mime: String?) {
         iv.load(uri) {
             crossfade(true)
             videoFrameMillis(0)
@@ -297,7 +301,7 @@ class ResultsFragment : Fragment() {
                     try {
                         val w = iv.width.coerceAtLeast(200)
                         val h = iv.height.coerceAtLeast(200)
-                        val bmp = iv.context.contentResolver.loadThumbnail(uri, android.util.Size(w, h), android.os.CancellationSignal())
+                        val bmp = iv.context.contentResolver.loadThumbnail(uri, Size(w, h), CancellationSignal())
                         withContext(Dispatchers.Main) { iv.setImageBitmap(bmp) }
                     } catch (_: Throwable) {
                         withContext(Dispatchers.Main) {
