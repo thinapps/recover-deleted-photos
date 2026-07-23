@@ -318,7 +318,7 @@ class MediaScanner(private val context: Context) {
                 dateTakenMs = dateTaken,
                 origin = if (isTrashed) MediaItem.Origin.TRASHED else MediaItem.Origin.NORMAL,
                 isProbablyVideo = isProbablyVideo,
-                mimeType = mime // <--- MODIFIED: Pass the actual MIME type
+                mimeType = mime
             )
 
             onItems(1)
