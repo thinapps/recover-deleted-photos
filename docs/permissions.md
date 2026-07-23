@@ -19,9 +19,9 @@ The Home and Scan screens block scanning below Android 13, so the legacy permiss
 
 ## In-app privacy policy
 
-Version 1.2.2 adds a compact Privacy Policy link below the Home footer. It opens a Material dialog inside the app and does not require a browser, another screen, or Internet permission.
+Version 1.2.2 retains the compact Privacy Policy link below the Home footer. It opens a Material dialog inside the app and does not require a browser, another screen, or Internet permission.
 
-The policy describes the current local MediaStore scan, temporary in-memory results, recovery copies, recovered-file opening behavior, disabled Android cloud backup, and the absence of accounts, advertising, analytics, or a ThinApps-operated cloud service.
+The policy documents local MediaStore scanning and its forensic-recovery limits, temporary in-memory results, relative storage folder path metadata, recovery copies in shared media storage, possible visibility or synchronization by other device services, user-initiated recovered-file opening in external apps, disabled Android cloud backup, and the absence of accounts, advertising, analytics, or a ThinApps-operated cloud service.
 
 ## Separate media permissions
 
