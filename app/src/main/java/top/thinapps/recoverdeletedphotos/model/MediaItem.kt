@@ -14,6 +14,7 @@ data class MediaItem(
     val displayName: String,
     val sizeBytes: Long,
     val dateAddedSec: Long,
+    val dateTakenMs: Long? = null,
     val origin: Origin = Origin.NORMAL,
     val isProbablyVideo: Boolean = false,
     val mimeType: String = "" // or: val mimeType: String? = null
