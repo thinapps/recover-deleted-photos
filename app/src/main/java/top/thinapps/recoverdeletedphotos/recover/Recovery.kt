@@ -46,7 +46,8 @@ object Recovery {
             if (Build.VERSION.SDK_INT >= 29) {
                 put(MediaStore.MediaColumns.IS_PENDING, 1) // keep hidden until fully written
                 if (mime.startsWith("image/") || mime.startsWith("video/")) {
-                    put(MediaStore.MediaColumns.DATE_TAKEN, item.dateAddedSec * 1000) // preserve taken time
+                    val dateTaken = item.dateTakenMs ?: item.dateAddedSec * 1000
+                    put(MediaStore.MediaColumns.DATE_TAKEN, dateTaken)
                 }
             }
         }
