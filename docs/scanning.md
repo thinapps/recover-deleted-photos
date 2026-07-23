@@ -2,6 +2,8 @@
 
 Recover Deleted Photos scans Android MediaStore locally for the selected media type.
 
+It can inspect only media records that Android exposes through MediaStore and cannot perform forensic recovery of overwritten, inaccessible, or permanently deleted files.
+
 - normal and trashed media exposed by the device are included
 - files in `Pictures/Recovered` and `Music/Recovered` are excluded from future scans
 - zero-size entries and entries without a MIME type are excluded
