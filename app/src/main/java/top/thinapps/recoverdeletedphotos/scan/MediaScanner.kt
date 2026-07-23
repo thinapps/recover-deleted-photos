@@ -299,6 +299,11 @@ class MediaScanner(private val context: Context) {
             val name = c.getString(nameIdx)?.takeIf { it.isNotBlank() } ?: "recovered_$id"
             val size = c.getLong(sizeIdx)
             val dateAdded = c.getLong(dateIdx)
+            val dateTaken = if (dateTakenIdx != -1 && !c.isNull(dateTakenIdx)) {
+                c.getLong(dateTakenIdx).takeIf { it > 0L }
+            } else {
+                null
+            }
             val isTrashed = trashedIdx != -1 && c.getInt(trashedIdx) == 1
 
             val mime = if (mimeIdx != -1) c.getString(mimeIdx) ?: "" else ""
@@ -310,6 +315,7 @@ class MediaScanner(private val context: Context) {
                 displayName = name,
                 sizeBytes = size,
                 dateAddedSec = dateAdded,
+                dateTakenMs = dateTaken,
                 origin = if (isTrashed) MediaItem.Origin.TRASHED else MediaItem.Origin.NORMAL,
                 isProbablyVideo = isProbablyVideo,
                 mimeType = mime // <--- MODIFIED: Pass the actual MIME type
