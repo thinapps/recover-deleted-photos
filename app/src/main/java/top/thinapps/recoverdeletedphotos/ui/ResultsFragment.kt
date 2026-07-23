@@ -37,7 +37,6 @@ import top.thinapps.recoverdeletedphotos.databinding.ItemMediaBinding
 import top.thinapps.recoverdeletedphotos.databinding.ItemMediaGridBinding
 import top.thinapps.recoverdeletedphotos.model.MediaItem
 import top.thinapps.recoverdeletedphotos.recover.Recovery
-import top.thinapps.recoverdeletedphotos.ui.SnackbarUtils
 import java.text.Collator
 import kotlin.math.log10
 import kotlin.math.pow
