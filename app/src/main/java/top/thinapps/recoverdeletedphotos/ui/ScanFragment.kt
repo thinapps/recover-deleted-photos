@@ -437,10 +437,10 @@ class ScanFragment : Fragment() {
         // immediate visual feedback on the button
         vb.cancelButton.apply {
             isEnabled = false
-            text = getString(R.string.cancelling) // new string
+            text = getString(R.string.cancelling)
 
             // Apply temporary Contained Button style using the DISABLED background color
-            backgroundTintList = ContextCompat.getColorStateList(context, R.color.recover_button_disabled_bg) // MODIFIED LINE
+            backgroundTintList = ContextCompat.getColorStateList(context, R.color.recover_button_disabled_bg)
             setTextColor(ContextCompat.getColor(context, R.color.recover_button_text))
 
             // Use a full-opacity animation for the solid contained look
@@ -484,16 +484,13 @@ class ScanFragment : Fragment() {
 
     // ---- state screens -------------------------------------------------------
 
-    // toggle between the scanning ui and the generic state container.
-    // when scanning, add a subtle breathing animation to the cancel button.
+    // toggle between the scanning ui and the generic state container
     private fun showScanUI(show: Boolean) {
         vb.scanContent.visibility = if (show) View.VISIBLE else View.GONE
         vb.stateContainer.visibility = if (show) View.GONE else View.VISIBLE
         vb.cancelButton.isEnabled = show && !navigating
 
-        if (show) {
-            // Removed the ObjectAnimator for the infinite alpha breathing effect on the Cancel button
-        } else {
+        if (!show) {
             vb.cancelButton.alpha = 1f
         }
     }
