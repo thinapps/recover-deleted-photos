@@ -111,7 +111,7 @@ class ResultsFragment : Fragment() {
 
             val appContext = requireContext().applicationContext
             viewLifecycleOwner.lifecycleScope.launch {
-                val isMusicRecovery = isMusicRecovery(chosen)
+                val isMusicRecovery = areAllItemsAudio(chosen)
 
                 try {
                     val recoveredCount = withContext(Dispatchers.IO) {
@@ -275,7 +275,7 @@ class ResultsFragment : Fragment() {
     }
 
     // detect whether all selected media belongs in Music/Recovered
-    private fun isMusicRecovery(chosen: List<MediaItem>): Boolean {
+    private fun areAllItemsAudio(chosen: List<MediaItem>): Boolean {
         val cr = requireContext().contentResolver
         return chosen.all { item ->
             val mime = item.mimeType.takeIf { it.isNotBlank() }
