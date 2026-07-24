@@ -111,8 +111,7 @@ class ResultsFragment : Fragment() {
 
             val appContext = requireContext().applicationContext
             viewLifecycleOwner.lifecycleScope.launch {
-                val folderLabel = getRecoveryFolderLabel(chosen)
-                val isMusicRecovery = folderLabel == "Music/Recovered"
+                val isMusicRecovery = isMusicRecovery(chosen)
 
                 try {
                     val recoveredCount = withContext(Dispatchers.IO) {
@@ -275,15 +274,14 @@ class ResultsFragment : Fragment() {
         super.onDestroyView()
     }
 
-    // detect audio vs image/video targets for destination folder
-    private fun getRecoveryFolderLabel(chosen: List<MediaItem>): String {
+    // detect whether all selected media belongs in Music/Recovered
+    private fun isMusicRecovery(chosen: List<MediaItem>): Boolean {
         val cr = requireContext().contentResolver
-        val allAudio = chosen.all { item ->
+        return chosen.all { item ->
             val mime = item.mimeType.takeIf { it.isNotBlank() }
                 ?: try { cr.getType(item.uri) } catch (_: Exception) { null }
             mime?.startsWith("audio/") == true
         }
-        return if (allAudio) "Music/Recovered" else "Pictures/Recovered"
     }
 
     // load video frames with a graceful fallback
