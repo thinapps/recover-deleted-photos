@@ -33,30 +33,34 @@ object Recovery {
 
     // single item copy using mediastore insert and stream copy
     private fun copyOne(resolver: ContentResolver, item: MediaItem): Boolean {
-        val name = item.displayName.ifBlank { "recovered_${UUID.randomUUID()}" }
-        val mime = resolver.getType(item.uri) ?: guessMime(name)
-
-        val target = targetForMime(mime) ?: return false
-        val (collection, relativePath) = target
-
-        val values = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, mime)
-            put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
-            if (Build.VERSION.SDK_INT >= 29) {
-                put(MediaStore.MediaColumns.IS_PENDING, 1) // keep hidden until fully written
-                if (mime.startsWith("image/") || mime.startsWith("video/")) {
-                    val dateTaken = item.dateTakenMs ?: item.dateAddedSec * 1000
-                    put(MediaStore.MediaColumns.DATE_TAKEN, dateTaken)
-                }
-            }
-        }
-
-        val dest: Uri = resolver.insert(collection, values) ?: return false
+        var destination: Uri? = null
 
         return try {
+            val name = item.displayName.ifBlank { "recovered_${UUID.randomUUID()}" }
+            val mime = item.mimeType.takeIf { it.isNotBlank() }
+                ?: resolver.getType(item.uri)
+                ?: guessMime(name)
+
+            val target = targetForMime(mime) ?: return false
+            val (collection, relativePath) = target
+
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                put(MediaStore.MediaColumns.MIME_TYPE, mime)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+                if (Build.VERSION.SDK_INT >= 29) {
+                    put(MediaStore.MediaColumns.IS_PENDING, 1) // keep hidden until fully written
+                    if (mime.startsWith("image/") || mime.startsWith("video/")) {
+                        val dateTaken = item.dateTakenMs ?: item.dateAddedSec * 1000
+                        put(MediaStore.MediaColumns.DATE_TAKEN, dateTaken)
+                    }
+                }
+            }
+
+            destination = resolver.insert(collection, values) ?: return false
+
             resolver.openInputStream(item.uri)?.use { input ->
-                resolver.openOutputStream(dest, "w")?.use { output ->
+                resolver.openOutputStream(destination, "w")?.use { output ->
                     input.copyTo(output)
                 }
             } ?: throw IOException("null stream")
@@ -65,11 +69,13 @@ object Recovery {
                 val done = ContentValues().apply {
                     put(MediaStore.MediaColumns.IS_PENDING, 0) // make visible after success
                 }
-                resolver.update(dest, done, null, null)
+                resolver.update(destination, done, null, null)
             }
             true
         } catch (_: Exception) {
-            runCatching { resolver.delete(dest, null, null) }
+            destination?.let { uri ->
+                runCatching { resolver.delete(uri, null, null) }
+            }
             false
         }
     }
