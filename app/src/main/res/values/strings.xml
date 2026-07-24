@@ -82,8 +82,6 @@
     <string name="scan_error_msg">Something went wrong while scanning your storage.</string>
 
     <!-- recovery confirmation -->
-    <string name="recovery_in_progress_count">Recovering %1$d items…</string>
-    <string name="recovery_in_progress">Recovering items…</string>
     <string name="recovery_none">No items were recovered</string>
     <string name="recovery_folder_pictures" translatable="false">Pictures/Recovered</string>
     <string name="recovery_folder_music" translatable="false">Music/Recovered</string>
