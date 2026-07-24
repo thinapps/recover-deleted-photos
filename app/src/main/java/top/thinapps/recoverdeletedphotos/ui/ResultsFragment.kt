@@ -285,13 +285,13 @@ class ResultsFragment : Fragment() {
     }
 
     // load video frames with a graceful fallback
-    private fun loadVideoThumbWithFallback(imageView: ImageView, uri: Uri, mime: String?) {
+    private fun loadVideoThumbWithFallback(imageView: ImageView, uri: Uri, mimeType: String?) {
         imageView.load(uri) {
             crossfade(true)
             videoFrameMillis(0)
             allowHardware(false)
             memoryCacheKey("$uri#t=0ms")
-            if (!mime.isNullOrBlank()) parameters(Parameters.Builder().set("coil#image_source_mime_type", mime).build())
+            if (!mimeType.isNullOrBlank()) parameters(Parameters.Builder().set("coil#image_source_mime_type", mimeType).build())
             size(ViewSizeResolver(imageView))
             listener(onError = { _, _ ->
                 val owner = imageView.findViewTreeLifecycleOwner() ?: return@listener
@@ -308,8 +308,8 @@ class ResultsFragment : Fragment() {
                                 videoFrameMillis(1_000)
                                 allowHardware(false)
                                 memoryCacheKey("$uri#t=1000ms")
-                                if (!mime.isNullOrBlank()) {
-                                    parameters(Parameters.Builder().set("coil#image_source_mime_type", mime).build())
+                                if (!mimeType.isNullOrBlank()) {
+                                    parameters(Parameters.Builder().set("coil#image_source_mime_type", mimeType).build())
                                 }
                                 size(ViewSizeResolver(imageView))
                             }
