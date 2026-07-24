@@ -95,7 +95,6 @@ dependencies {
     // interpolators library used for custom scanfragment animations
     implementation "androidx.interpolator:interpolator:1.0.0"
 
-    // optional androidx helpers for potential future feature needs
-    implementation "androidx.preference:preference-ktx:1.2.1"
+    // annotations used for api and resource contracts
     implementation "androidx.annotation:annotation:1.8.2"
 }
