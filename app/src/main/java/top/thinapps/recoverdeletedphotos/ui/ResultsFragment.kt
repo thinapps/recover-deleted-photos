@@ -297,10 +297,10 @@ class ResultsFragment : Fragment() {
                 val owner = imageView.findViewTreeLifecycleOwner() ?: return@listener
                 owner.lifecycleScope.launch(Dispatchers.IO) {
                     try {
-                        val w = imageView.width.coerceAtLeast(200)
-                        val h = imageView.height.coerceAtLeast(200)
-                        val bmp = imageView.context.contentResolver.loadThumbnail(uri, Size(w, h), CancellationSignal())
-                        withContext(Dispatchers.Main) { imageView.setImageBitmap(bmp) }
+                        val width = imageView.width.coerceAtLeast(200)
+                        val height = imageView.height.coerceAtLeast(200)
+                        val bitmap = imageView.context.contentResolver.loadThumbnail(uri, Size(width, height), CancellationSignal())
+                        withContext(Dispatchers.Main) { imageView.setImageBitmap(bitmap) }
                     } catch (_: Throwable) {
                         withContext(Dispatchers.Main) {
                             imageView.load(uri) {
