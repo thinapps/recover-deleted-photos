@@ -19,7 +19,7 @@
 ### 1.2.0
 - upgraded the Android build toolchain to AGP 8.10.1, Kotlin 2.2.21, Gradle 8.11.1, and Java 17
 - updated compile and target SDK levels to Android 16 / API 36 ahead of Google Play's August 31, 2026 requirement for new apps and app updates, without changing media permissions
-- enabled edge-to-edge display with system bar, navigation bar, and display-cutout insets while preserving existing navigation cleanup
+- enabled edge-to-edge display with system bar and display-cutout insets while preserving existing navigation cleanup
 
 ### 1.1.10
 - made recovery cancellation and completion cleanup safe across navigation and view recreation
@@ -600,7 +600,7 @@
 ### 0.4.0
 - migrated app to Material 3 theme for modern UI styling
 - changed to automatic system dark mode support
-- switched to XML-based layout (`view_empty_state.xml`) for proper theming
+- switched to XML-based layout (view_empty_state.xml) for proper theming
 - added placeholder empty state screen with icon and text
 - defined minimal theme colors and theme structure
 
