@@ -518,7 +518,8 @@ class ScanFragment : Fragment() {
         vb.stateTitle.text = getString(R.string.perm_required_title)
         vb.stateMessage.text = getString(R.string.perm_required_msg)
         vb.statePrimary.text = getString(R.string.perm_open_settings)
-        vb.statePrimary.setOnClickListener {
+        vb.statePrimary.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                 data = Uri.fromParts("package", requireContext().packageName, null)
             }
@@ -530,7 +531,8 @@ class ScanFragment : Fragment() {
             TypeChoice.VIDEOS -> getString(R.string.perm_request_videos)
             TypeChoice.AUDIO -> getString(R.string.perm_request_audio)
         }
-        vb.stateSecondary.setOnClickListener {
+        vb.stateSecondary.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (isAndroid13Plus()) requestPerm.launch(requiredPerm(selectedType))
             else showNotSupportedState()
         }
@@ -554,7 +556,8 @@ class ScanFragment : Fragment() {
         vb.stateTitle.text = getString(R.string.scan_error_title)
         vb.stateMessage.text = getString(R.string.scan_error_msg)
         vb.statePrimary.text = getString(R.string.try_again)
-        vb.statePrimary.setOnClickListener {
+        vb.statePrimary.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val perm = if (isAndroid13Plus()) requiredPerm(selectedType) else null
             if (perm == null || ContextCompat.checkSelfPermission(requireContext(), perm) == PackageManager.PERMISSION_GRANTED) {
                 started = false
