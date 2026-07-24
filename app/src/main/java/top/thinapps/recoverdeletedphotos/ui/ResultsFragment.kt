@@ -274,7 +274,7 @@ class ResultsFragment : Fragment() {
         super.onDestroyView()
     }
 
-    // detect whether all selected media belongs in Music/Recovered
+    // detect whether all selected items are audio
     private fun areAllItemsAudio(chosen: List<MediaItem>): Boolean {
         val cr = requireContext().contentResolver
         return chosen.all { item ->
