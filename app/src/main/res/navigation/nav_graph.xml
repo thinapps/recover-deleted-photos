@@ -34,11 +34,6 @@
             app:argType="string"
             android:defaultValue="PHOTOS" />
 
-        <argument
-            android:name="title_override"
-            app:argType="string"
-            android:defaultValue="@null" />
-
         <action
             android:id="@+id/action_scan_to_results"
             app:destination="@id/resultsFragment" />
@@ -47,13 +42,7 @@
     <fragment
         android:id="@+id/resultsFragment"
         android:name="top.thinapps.recoverdeletedphotos.ui.ResultsFragment"
-        android:label="@string/results_title">
-
-        <argument
-            android:name="title_override"
-            app:argType="string"
-            android:defaultValue="@null" />
-    </fragment>
+        android:label="@string/results_title" />
 
     <!-- RecoveredFragment destination (photos/videos) -->
     <fragment
