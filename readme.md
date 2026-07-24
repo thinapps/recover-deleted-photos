@@ -3,13 +3,12 @@
 ## Changelog
 
 ### 1.3.0
-- standardized the Home footer message around local core functionality and open-source feedback
-- expanded privacy disclosures for scan limitations, shared recovered-file storage, and external app handling
-- clarified the empty-state icon dimension resource without changing its appearance
-- improved scan messaging and used original photo and video timestamps for display, sorting, and recovery
-- applied consistent Privacy Policy dialog styling in dark mode
-- hardened batch recovery so individual failures do not stop the batch, incomplete copies are removed, and only published files count as recovered
-- improved Home screen accessibility by hiding the decorative hero icon from screen readers
+- standardized the Home footer and clarified Home and empty-result scan messaging
+- expanded the in-app privacy policy for scan limitations, scanned metadata, shared recovered-file storage, and external app handling, with consistent dialog styling in dark mode
+- used original photo and video timestamps for result display, date sorting, and recovered copies, falling back to MediaStore added dates when needed
+- hardened recovery so each file fails independently, incomplete or unpublished copies are removed, stored MIME types are preferred, and only successfully published files are counted
+- allowed the recovered-file viewer screens to open before Android 13 while keeping scanning limited to Android 13+ and media permissions unchanged
+- improved Home screen accessibility and cleaned up an unused dependency, dead Snackbar and navigation code, unused scanner values, stale comments, and empty-state icon sizing resources without changing the interface
 
 ### 1.2.1
 - added an underlined Privacy Policy link below the Home footer
