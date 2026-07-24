@@ -57,10 +57,11 @@ object Recovery {
                 }
             }
 
-            destination = resolver.insert(collection, values) ?: return false
+            val dest = resolver.insert(collection, values) ?: return false
+            destination = dest
 
             resolver.openInputStream(item.uri)?.use { input ->
-                resolver.openOutputStream(destination, "w")?.use { output ->
+                resolver.openOutputStream(dest, "w")?.use { output ->
                     input.copyTo(output)
                 }
             } ?: throw IOException("null stream")
@@ -69,7 +70,7 @@ object Recovery {
                 val done = ContentValues().apply {
                     put(MediaStore.MediaColumns.IS_PENDING, 0) // make visible after success
                 }
-                resolver.update(destination, done, null, null)
+                resolver.update(dest, done, null, null)
             }
             true
         } catch (_: Exception) {
