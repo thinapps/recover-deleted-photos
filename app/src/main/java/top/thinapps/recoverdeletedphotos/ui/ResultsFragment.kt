@@ -203,7 +203,7 @@ class ResultsFragment : Fragment() {
         val feedback = if (success) {
             HapticFeedbackConstantsCompat.CONFIRM
         } else {
-            HapticFeedbackConstantsCompat.REJECT
+            HapticFeedbackConstantsCompat.VIRTUAL_KEY
         }
         ViewCompat.performHapticFeedback(root, feedback)
     }
