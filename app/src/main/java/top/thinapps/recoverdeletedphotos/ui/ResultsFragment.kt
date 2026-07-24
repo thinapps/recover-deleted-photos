@@ -278,9 +278,9 @@ class ResultsFragment : Fragment() {
     private fun areAllItemsAudio(items: List<MediaItem>): Boolean {
         val contentResolver = requireContext().contentResolver
         return items.all { item ->
-            val mime = item.mimeType.takeIf { it.isNotBlank() }
+            val mimeType = item.mimeType.takeIf { it.isNotBlank() }
                 ?: try { contentResolver.getType(item.uri) } catch (_: Exception) { null }
-            mime?.startsWith("audio/") == true
+            mimeType?.startsWith("audio/") == true
         }
     }
 
