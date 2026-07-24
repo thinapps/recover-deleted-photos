@@ -21,7 +21,7 @@ data class MediaItem(
     val mimeType: String = ""
 ) : Parcelable {
 
-    // defines if the file was normal or in the system trash folder
+    // identifies whether media comes from normal storage or the system trash
     enum class Origin { NORMAL, TRASHED }
 
     val effectiveDateMs: Long
