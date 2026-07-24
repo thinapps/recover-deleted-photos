@@ -238,8 +238,8 @@ class ResultsFragment : Fragment() {
         adapter.submitList(sorted) {
             val binding = _vb ?: return@submitList
             if (sorted.isNotEmpty()) {
-                val lm = binding.list.layoutManager
-                (lm as? LinearLayoutManager)?.scrollToPositionWithOffset(0, 0)
+                val layoutManager = binding.list.layoutManager
+                (layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(0, 0)
                     ?: binding.list.scrollToPosition(0)
             }
             binding.empty.isVisible = sorted.isEmpty()
