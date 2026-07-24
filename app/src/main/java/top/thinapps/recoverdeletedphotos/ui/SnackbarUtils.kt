@@ -8,31 +8,12 @@ import kotlinx.coroutines.withContext
 import top.thinapps.recoverdeletedphotos.R
 
 object SnackbarUtils {
-    private var inProgressBar: Snackbar? = null
 
     private fun rootView(activity: Activity): View =
         activity.findViewById(android.R.id.content)
 
     private fun anchorView(activity: Activity): View? =
         activity.findViewById(R.id.recoverButton)
-
-    fun showRecovering(activity: Activity, totalPlanned: Int? = null) {
-        dismissRecovering()
-        val msg = if (totalPlanned != null && totalPlanned > 0) {
-            activity.getString(R.string.recovery_in_progress_count, totalPlanned)
-        } else {
-            activity.getString(R.string.recovery_in_progress)
-        }
-        inProgressBar = Snackbar.make(rootView(activity), msg, Snackbar.LENGTH_INDEFINITE).apply {
-            setAnchorView(anchorView(activity))
-            show()
-        }
-    }
-
-    fun dismissRecovering() {
-        inProgressBar?.dismiss()
-        inProgressBar = null
-    }
 
     suspend fun showRecovered(activity: Activity, count: Int, isAudioOnly: Boolean) {
         withContext(Dispatchers.Main) {
