@@ -68,7 +68,7 @@
 ### 1.1.0
 - added a new in-app viewer for recovered photos and videos
 - browse all files saved in the `Pictures/Recovered` directory directly inside the app
-- wired the Home screen “Recovered Photos/Videos” button to the new viewer
+- wired the Home screen “Recovered Photos/Videos” button to navigate to the new viewer
 - kept the “Recovered Audio” button as a placeholder for a future update
 - added new UI strings and navigation entries needed for the recovered viewer
 
@@ -245,6 +245,7 @@
 ### 0.17.4
 - removed the redundant `app:iconTint` attribute from `menu_results.xml`
 - updated Snackbar action text on Home to the more explicit "Grant Access in Settings"
+- Cancel button now temporarily displays as a solid contained button when showing "Cancelling..." state
 
 ### 0.17.3
 - resolved (further) toolbar icon visibility issues in both light and dark modes
@@ -310,7 +311,7 @@
 
 ### 0.16.4
 - ScanFragment.kt: stabilized progress updates (throttled text updates during scan to avoid animator churn/crashes)
-- ScanFragment.kt: single smooth final animation after scan completes
+- ScanFragment.kt: single smooth final count animation after scan completes
 - UI: neon green final count (md_green_A400) for clearer “found files” highlight
 
 ### 0.16.3
