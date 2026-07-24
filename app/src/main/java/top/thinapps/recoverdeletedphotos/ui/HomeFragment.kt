@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,12 +85,14 @@ class HomeFragment : Fragment() {
         vb.subtitle.isVisible = true
 
         // open the in-app Recovered Photos/Videos list
-        vb.buttonViewRecoveredPhotosVideos.setOnClickListener {
+        vb.buttonViewRecoveredPhotosVideos.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             findNavController().navigate(R.id.action_home_to_recovered)
         }
 
         // open the in-app Recovered Audio list
-        vb.buttonViewRecoveredAudio.setOnClickListener {
+        vb.buttonViewRecoveredAudio.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             findNavController().navigate(R.id.action_home_to_recovered_audio)
         }
 
@@ -111,7 +114,8 @@ class HomeFragment : Fragment() {
         }
 
         // main action for request or scan or settings
-        vb.startButton.setOnClickListener {
+        vb.startButton.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             vb.startButton.isEnabled = false
 
             val type = currentType()
