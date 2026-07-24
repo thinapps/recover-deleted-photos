@@ -276,10 +276,10 @@ class ResultsFragment : Fragment() {
 
     // detect whether all selected items are audio
     private fun areAllItemsAudio(chosen: List<MediaItem>): Boolean {
-        val cr = requireContext().contentResolver
+        val contentResolver = requireContext().contentResolver
         return chosen.all { item ->
             val mime = item.mimeType.takeIf { it.isNotBlank() }
-                ?: try { cr.getType(item.uri) } catch (_: Exception) { null }
+                ?: try { contentResolver.getType(item.uri) } catch (_: Exception) { null }
             mime?.startsWith("audio/") == true
         }
     }
