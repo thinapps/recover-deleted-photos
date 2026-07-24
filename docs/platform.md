@@ -27,7 +27,7 @@ Layouts, styles, shape drawables, and vector intrinsic sizes reference these nam
 
 ## Interaction feedback
 
-The Home screen Start Scan, View Recovered Photos/Videos, and View Recovered Audio buttons request standard Android virtual-key haptic feedback when activated.
+The Home screen Start Scan, View Recovered Photos/Videos, and View Recovered Audio buttons request standard Android virtual-key haptic feedback when activated. The Scan screen Cancel button and back navigation use the same feedback before returning to the Home screen.
 
 ## Android 16 behavior
 
