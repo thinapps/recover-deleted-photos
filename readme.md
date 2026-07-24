@@ -3,7 +3,7 @@
 ## Changelog
 
 ### 1.3.1
-- added haptic feedback to the Home screen scan and recovered-file viewer buttons
+- added haptic feedback to key Home and Scan screen actions, including scan cancellation and back navigation
 
 ### 1.3.0
 - clarified Home screen and empty-result scan messaging
