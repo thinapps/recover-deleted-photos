@@ -251,8 +251,8 @@ class ResultsFragment : Fragment() {
         if (isRecovering) return
         if (!selectedIds.remove(item.id)) selectedIds.add(item.id)
         updateRecoverButton()
-        val idx = adapter.currentList.indexOfFirst { it.id == item.id }
-        if (idx != -1) adapter.notifyItemChanged(idx)
+        val position = adapter.currentList.indexOfFirst { it.id == item.id }
+        if (position != -1) adapter.notifyItemChanged(position)
     }
 
     // update recover button label and state
