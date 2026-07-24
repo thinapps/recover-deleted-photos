@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.util.Size
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -16,6 +17,8 @@ import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.core.content.res.use
+import androidx.core.view.HapticFeedbackConstantsCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -78,6 +81,7 @@ class ResultsFragment : Fragment() {
         // handle system back to always go home
         val backCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 exitAndCleanup()
             }
         }
@@ -100,11 +104,12 @@ class ResultsFragment : Fragment() {
         updateRecoverButton()
 
         // handle recover button click
-        vb.recoverButton.setOnClickListener {
+        vb.recoverButton.setOnClickListener { button ->
             if (isRecovering) return@setOnClickListener
             val chosen = adapter.currentList.filter { selectedIds.contains(it.id) }
             if (chosen.isEmpty()) return@setOnClickListener
 
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             isRecovering = true
             updateRecoverButton()
             adapter.notifyDataSetChanged()
@@ -119,12 +124,14 @@ class ResultsFragment : Fragment() {
                     }
                     selectedIds.clear()
                     if (_vb != null) adapter.notifyDataSetChanged()
+                    performRecoveryResultHaptic(recoveredCount > 0)
                     activity?.let {
                         SnackbarUtils.showRecovered(it, recoveredCount, isMusicRecovery)
                     }
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (_: Throwable) {
+                    performRecoveryResultHaptic(false)
                     activity?.let {
                         SnackbarUtils.showRecovered(it, 0, isMusicRecovery)
                     }
@@ -179,6 +186,7 @@ class ResultsFragment : Fragment() {
         }) { item ->
             when (item.itemId) {
                 R.id.action_toggle_layout -> {
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     useGrid = !useGrid
                     updateLayoutManager()
                     refreshToggleIcon(item)
@@ -187,6 +195,17 @@ class ResultsFragment : Fragment() {
                 else -> false
             }
         }
+    }
+
+    // perform compatible success or failure feedback after recovery completes
+    private fun performRecoveryResultHaptic(success: Boolean) {
+        val root = _vb?.root ?: return
+        val feedback = if (success) {
+            HapticFeedbackConstantsCompat.CONFIRM
+        } else {
+            HapticFeedbackConstantsCompat.REJECT
+        }
+        ViewCompat.performHapticFeedback(root, feedback)
     }
 
     // clear results and return home
