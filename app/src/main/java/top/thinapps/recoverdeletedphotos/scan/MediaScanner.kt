@@ -111,7 +111,7 @@ class MediaScanner(private val context: Context) {
                         offset = offset,
                         signal = cancel
                     )?.use { c ->
-                        consumeCursor(c, q, projection, seenUris, out) { inc ->
+                        consumeCursor(c, q, seenUris, out) { inc ->
                             found += inc
                             maybeEmitProgress(onProgress, found, total, ::nanoNow, lastEmit).also {
                                 lastEmit = it
@@ -138,7 +138,7 @@ class MediaScanner(private val context: Context) {
                     offset = null,
                     signal = cancel
                 )?.use { c ->
-                    consumeCursor(c, q, projection, seenUris, out) { inc ->
+                    consumeCursor(c, q, seenUris, out) { inc ->
                         found += inc
                         maybeEmitProgress(onProgress, found, total, ::nanoNow, lastEmit).also {
                             lastEmit = it
@@ -270,7 +270,6 @@ class MediaScanner(private val context: Context) {
     private suspend fun consumeCursor(
         c: android.database.Cursor,
         q: QuerySpec,
-        projection: Array<String>,
         seenUris: MutableSet<Uri>,
         out: MutableList<MediaItem>,
         onItems: (inc: Int) -> Unit
@@ -282,8 +281,6 @@ class MediaScanner(private val context: Context) {
 
         val dateTakenIdx = q.dateTaken?.let { c.getColumnIndex(it) } ?: -1
         val mimeIdx = c.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)
-        val relPathIdx =
-            if (Build.VERSION.SDK_INT >= 29) c.getColumnIndex(MediaStore.MediaColumns.RELATIVE_PATH) else -1
         val trashedIdx =
             if (Build.VERSION.SDK_INT >= 30) c.getColumnIndex(MediaStore.MediaColumns.IS_TRASHED) else -1
 
