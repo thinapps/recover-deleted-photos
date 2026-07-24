@@ -285,25 +285,25 @@ class ResultsFragment : Fragment() {
     }
 
     // load video frames with a graceful fallback
-    private fun loadVideoThumbWithFallback(iv: ImageView, uri: Uri, mime: String?) {
-        iv.load(uri) {
+    private fun loadVideoThumbWithFallback(imageView: ImageView, uri: Uri, mime: String?) {
+        imageView.load(uri) {
             crossfade(true)
             videoFrameMillis(0)
             allowHardware(false)
             memoryCacheKey("$uri#t=0ms")
             if (!mime.isNullOrBlank()) parameters(Parameters.Builder().set("coil#image_source_mime_type", mime).build())
-            size(ViewSizeResolver(iv))
+            size(ViewSizeResolver(imageView))
             listener(onError = { _, _ ->
-                val owner = iv.findViewTreeLifecycleOwner() ?: return@listener
+                val owner = imageView.findViewTreeLifecycleOwner() ?: return@listener
                 owner.lifecycleScope.launch(Dispatchers.IO) {
                     try {
-                        val w = iv.width.coerceAtLeast(200)
-                        val h = iv.height.coerceAtLeast(200)
-                        val bmp = iv.context.contentResolver.loadThumbnail(uri, Size(w, h), CancellationSignal())
-                        withContext(Dispatchers.Main) { iv.setImageBitmap(bmp) }
+                        val w = imageView.width.coerceAtLeast(200)
+                        val h = imageView.height.coerceAtLeast(200)
+                        val bmp = imageView.context.contentResolver.loadThumbnail(uri, Size(w, h), CancellationSignal())
+                        withContext(Dispatchers.Main) { imageView.setImageBitmap(bmp) }
                     } catch (_: Throwable) {
                         withContext(Dispatchers.Main) {
-                            iv.load(uri) {
+                            imageView.load(uri) {
                                 crossfade(true)
                                 videoFrameMillis(1_000)
                                 allowHardware(false)
@@ -311,7 +311,7 @@ class ResultsFragment : Fragment() {
                                 if (!mime.isNullOrBlank()) {
                                     parameters(Parameters.Builder().set("coil#image_source_mime_type", mime).build())
                                 }
-                                size(ViewSizeResolver(iv))
+                                size(ViewSizeResolver(imageView))
                             }
                         }
                     }
