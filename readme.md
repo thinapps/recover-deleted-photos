@@ -8,6 +8,8 @@
 - clarified the empty-state icon dimension resource without changing its appearance
 - improved scan messaging and used original photo and video timestamps for display, sorting, and recovery
 - applied consistent Privacy Policy dialog styling in dark mode
+- hardened batch recovery so individual failures do not stop the batch, incomplete copies are removed, and only published files count as recovered
+- improved Home screen accessibility by hiding the decorative hero icon from screen readers
 
 ### 1.2.1
 - added an underlined Privacy Policy link below the Home footer
@@ -243,7 +245,6 @@
 ### 0.17.4
 - removed the redundant `app:iconTint` attribute from `menu_results.xml`
 - updated Snackbar action text on Home to the more explicit "Grant Access in Settings"
-- Cancel button now temporarily displays as a solid contained button when showing "Cancelling..." state
 
 ### 0.17.3
 - resolved (further) toolbar icon visibility issues in both light and dark modes
@@ -309,7 +310,7 @@
 
 ### 0.16.4
 - ScanFragment.kt: stabilized progress updates (throttled text updates during scan to avoid animator churn/crashes)
-- ScanFragment.kt: single smooth final count animation after scan completes
+- ScanFragment.kt: single smooth final animation after scan completes
 - UI: neon green final count (md_green_A400) for clearer “found files” highlight
 
 ### 0.16.3
