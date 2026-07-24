@@ -70,7 +70,9 @@ object Recovery {
                 val done = ContentValues().apply {
                     put(MediaStore.MediaColumns.IS_PENDING, 0) // make visible after success
                 }
-                resolver.update(dest, done, null, null)
+                if (resolver.update(dest, done, null, null) <= 0) {
+                    throw IOException("failed to publish recovered item")
+                }
             }
             true
         } catch (_: Exception) {
