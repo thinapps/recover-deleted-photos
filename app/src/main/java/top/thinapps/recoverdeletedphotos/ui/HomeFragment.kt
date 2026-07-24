@@ -84,7 +84,17 @@ class HomeFragment : Fragment() {
         // show subtitle on home
         vb.subtitle.isVisible = true
 
-        // disable features on pre android 13
+        // open the in-app Recovered Photos/Videos list
+        vb.buttonViewRecoveredPhotosVideos.setOnClickListener {
+            findNavController().navigate(R.id.action_home_to_recovered)
+        }
+
+        // open the in-app Recovered Audio list
+        vb.buttonViewRecoveredAudio.setOnClickListener {
+            findNavController().navigate(R.id.action_home_to_recovered_audio)
+        }
+
+        // disable scan features on pre android 13
         if (!isAndroid13Plus()) {
             vb.startButton.isEnabled = false
             vb.homeTypeRow.isVisible = false
@@ -124,16 +134,6 @@ class HomeFragment : Fragment() {
                 openAppSettings()
                 vb.startButton.isEnabled = true
             }
-        }
-
-        // open the in-app Recovered Photos/Videos list
-        vb.buttonViewRecoveredPhotosVideos.setOnClickListener {
-            findNavController().navigate(R.id.action_home_to_recovered)
-        }
-
-        // open the in-app Recovered Audio list
-        vb.buttonViewRecoveredAudio.setOnClickListener {
-            findNavController().navigate(R.id.action_home_to_recovered_audio)
         }
 
         // subtle entrance animation for title and subtitle
