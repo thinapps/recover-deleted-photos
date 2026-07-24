@@ -90,7 +90,7 @@ class ResultsFragment : Fragment() {
         // init adapter and layout manager
         adapter = MediaAdapter(
             isGrid = { useGrid },
-            onToggleSelect = { item -> toggleSelection(item) },
+            onToggleSelect = { item, source -> toggleSelection(item, source) },
             isSelected = { id -> selectedIds.contains(id) }
         )
         vb.list.adapter = adapter
@@ -265,10 +265,23 @@ class ResultsFragment : Fragment() {
         }
     }
 
-    // toggle selection for media item
-    private fun toggleSelection(item: MediaItem) {
+    // toggle selection for media item and provide state-specific feedback for normal taps
+    private fun toggleSelection(item: MediaItem, source: View?) {
         if (isRecovering) return
-        if (!selectedIds.remove(item.id)) selectedIds.add(item.id)
+        val selected = if (selectedIds.remove(item.id)) {
+            false
+        } else {
+            selectedIds.add(item.id)
+            true
+        }
+        source?.let {
+            val feedback = if (selected) {
+                HapticFeedbackConstantsCompat.TOGGLE_ON
+            } else {
+                HapticFeedbackConstantsCompat.TOGGLE_OFF
+            }
+            ViewCompat.performHapticFeedback(it, feedback)
+        }
         updateRecoverButton()
         val position = adapter.currentList.indexOfFirst { it.id == item.id }
         if (position != -1) adapter.notifyItemChanged(position)
@@ -342,7 +355,7 @@ class ResultsFragment : Fragment() {
     // adapter for list/grid modes
     private inner class MediaAdapter(
         private val isGrid: () -> Boolean,
-        private val onToggleSelect: (MediaItem) -> Unit,
+        private val onToggleSelect: (MediaItem, View?) -> Unit,
         private val isSelected: (Long) -> Boolean
     ) : ListAdapter<MediaItem, RecyclerView.ViewHolder>(
         object : DiffUtil.ItemCallback<MediaItem>() {
@@ -413,13 +426,20 @@ class ResultsFragment : Fragment() {
 
                 b.check.setOnCheckedChangeListener(null)
                 b.check.isChecked = selected
-                b.check.setOnCheckedChangeListener { _, _ -> if (!isRecovering) onToggleSelect(item) }
+                b.check.setOnCheckedChangeListener { button, _ ->
+                    if (!isRecovering) onToggleSelect(item, button)
+                }
 
                 val trashed = (item.origin == MediaItem.Origin.TRASHED)
                 b.badge?.isVisible = trashed
 
-                b.root.setOnClickListener { if (!isRecovering) onToggleSelect(item) }
-                b.root.setOnLongClickListener { if (!isRecovering) onToggleSelect(item); !isRecovering }
+                b.root.setOnClickListener { row ->
+                    if (!isRecovering) onToggleSelect(item, row)
+                }
+                b.root.setOnLongClickListener {
+                    if (!isRecovering) onToggleSelect(item, null)
+                    !isRecovering
+                }
             }
         }
 
@@ -460,13 +480,20 @@ class ResultsFragment : Fragment() {
 
                 b.check.setOnCheckedChangeListener(null)
                 b.check.isChecked = selected
-                b.check.setOnCheckedChangeListener { _, _ -> if (!isRecovering) onToggleSelect(item) }
+                b.check.setOnCheckedChangeListener { button, _ ->
+                    if (!isRecovering) onToggleSelect(item, button)
+                }
 
                 val trashed = (item.origin == MediaItem.Origin.TRASHED)
                 b.badge?.isVisible = trashed
 
-                b.root.setOnClickListener { if (!isRecovering) onToggleSelect(item) }
-                b.root.setOnLongClickListener { if (!isRecovering) onToggleSelect(item); !isRecovering }
+                b.root.setOnClickListener { row ->
+                    if (!isRecovering) onToggleSelect(item, row)
+                }
+                b.root.setOnLongClickListener {
+                    if (!isRecovering) onToggleSelect(item, null)
+                    !isRecovering
+                }
             }
         }
     }
