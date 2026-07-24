@@ -29,6 +29,8 @@ Layouts, styles, shape drawables, and vector intrinsic sizes reference these nam
 
 The app requests standard Android haptic feedback for intentional actions. These include the Home screen scan and recovered-media buttons; Scan cancellation, back navigation, permission, retry, and Go Home actions; Results selection, recovery, layout changes, recovery outcomes, and back navigation; recovered-viewer back navigation; failed recovered-file opening; and opening the Privacy Policy dialog.
 
+App-owned feedback is limited to virtual-key feedback and light semantic confirmation or toggle feedback. Stronger rejection feedback and direct vibrator APIs are intentionally not used.
+
 Normal Results row and checkbox taps use state-specific toggle-on or toggle-off feedback. Long-press selection relies on Android's native long-press feedback instead of adding a second custom vibration.
 
 The Home screen media-type radio buttons remain silent because they are routine option changes. Results sorting remains silent because it is a standard dropdown selection. Successful recovered-file opening remains silent because the launched viewer already confirms the action.
