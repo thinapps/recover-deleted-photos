@@ -29,7 +29,9 @@ Layouts, styles, shape drawables, and vector intrinsic sizes reference these nam
 
 The app requests standard Android haptic feedback for intentional, low-frequency actions. These include the Home screen scan and recovered-media buttons; Scan cancellation, back navigation, permission, retry, and Go Home actions; Results recovery, layout changes, recovery outcomes, and back navigation; recovered-viewer back navigation; failed recovered-file opening; and opening the Privacy Policy dialog.
 
-Routine or potentially repetitive interactions remain silent, including media-type radio buttons, sorting, media selection, successful recovered-file opening, and Privacy Policy dialog dismissal. The dialog's Close button, outside-tap dismissal, and system-back dismissal intentionally do not request haptic feedback, keeping equivalent dismissal methods consistent and avoiding unnecessary vibration.
+The Home screen media-type radio buttons remain silent because they are routine option changes. Results sorting remains silent because it is a standard dropdown selection. Successful recovered-file opening remains silent because the launched viewer already confirms the action.
+
+Privacy Policy dialog dismissal also remains silent. The dialog's Close button, outside-tap dismissal, and system-back dismissal intentionally do not request haptic feedback, keeping equivalent dismissal methods consistent and avoiding unnecessary vibration.
 
 ## Android 16 behavior
 
