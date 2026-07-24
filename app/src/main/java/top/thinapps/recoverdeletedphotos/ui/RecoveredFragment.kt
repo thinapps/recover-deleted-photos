@@ -236,7 +236,7 @@ class RecoveredFragment : Fragment() {
         return String.format(Locale.US, "%.1f %s", scaled, units[group])
     }
 
-    // copied pattern from ResultsFragment: video thumb with Coil + graceful fallback
+    // load video frames with a graceful fallback
     private fun loadVideoThumbWithFallback(iv: ImageView, uri: Uri, mime: String?) {
         iv.load(uri) {
             crossfade(true)
@@ -373,7 +373,7 @@ class RecoveredFragment : Fragment() {
     }
 }
 
-// theme helper copied from ResultsFragment style
+// resolve a raw color int from a theme attr with optional fallback
 private fun View.resolveThemeColorInt(
     @AttrRes attr: Int,
     @AttrRes fallbackAttr: Int? = null
