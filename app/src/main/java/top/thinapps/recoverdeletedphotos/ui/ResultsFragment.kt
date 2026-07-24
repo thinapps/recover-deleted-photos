@@ -356,9 +356,9 @@ class ResultsFragment : Fragment() {
         // list mode
         private inner class ListVH(private val b: ItemMediaBinding) : RecyclerView.ViewHolder(b.root) {
             fun bind(item: MediaItem) {
-                val mt = item.mimeType.takeIf { it.isNotBlank() }
-                val isVideo = item.isProbablyVideo || (mt?.startsWith("video/") == true)
-                val isAudio = !isVideo && (mt?.startsWith("audio/") == true)
+                val mimeType = item.mimeType.takeIf { it.isNotBlank() }
+                val isVideo = item.isProbablyVideo || (mimeType?.startsWith("video/") == true)
+                val isAudio = !isVideo && (mimeType?.startsWith("audio/") == true)
 
                 // theme-aware audio background
                 val bgColor = if (isAudio)
@@ -367,11 +367,11 @@ class ResultsFragment : Fragment() {
                 b.thumb.setBackgroundColor(bgColor)
 
                 if (isVideo) {
-                    loadVideoThumbWithFallback(b.thumb, item.uri, mt)
+                    loadVideoThumbWithFallback(b.thumb, item.uri, mimeType)
                 } else {
                     b.thumb.load(item.uri) {
                         crossfade(true)
-                        if (mt != null) parameters(Parameters.Builder().set("coil#image_source_mime_type", mt).build())
+                        if (mimeType != null) parameters(Parameters.Builder().set("coil#image_source_mime_type", mimeType).build())
                         size(ViewSizeResolver(b.thumb))
                     }
                 }
@@ -407,9 +407,9 @@ class ResultsFragment : Fragment() {
         // grid mode
         private inner class GridVH(private val b: ItemMediaGridBinding) : RecyclerView.ViewHolder(b.root) {
             fun bind(item: MediaItem) {
-                val mt = item.mimeType.takeIf { it.isNotBlank() }
-                val isVideo = item.isProbablyVideo || (mt?.startsWith("video/") == true)
-                val isAudio = !isVideo && (mt?.startsWith("audio/") == true)
+                val mimeType = item.mimeType.takeIf { it.isNotBlank() }
+                val isVideo = item.isProbablyVideo || (mimeType?.startsWith("video/") == true)
+                val isAudio = !isVideo && (mimeType?.startsWith("audio/") == true)
 
                 // theme-aware audio background
                 val bgColor = if (isAudio)
@@ -418,11 +418,11 @@ class ResultsFragment : Fragment() {
                 b.thumb.setBackgroundColor(bgColor)
 
                 if (isVideo) {
-                    loadVideoThumbWithFallback(b.thumb, item.uri, mt)
+                    loadVideoThumbWithFallback(b.thumb, item.uri, mimeType)
                 } else {
                     b.thumb.load(item.uri) {
                         crossfade(true)
-                        if (mt != null) parameters(Parameters.Builder().set("coil#image_source_mime_type", mt).build())
+                        if (mimeType != null) parameters(Parameters.Builder().set("coil#image_source_mime_type", mimeType).build())
                         size(ViewSizeResolver(b.thumb))
                     }
                 }
