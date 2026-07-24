@@ -49,14 +49,6 @@ class MainActivity : AppCompatActivity() {
         // wire navigation to action bar using nav graph labels for titles
         appBarConfig = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfig)
-
-        // optional dynamic titles via nav arguments
-        navController.addOnDestinationChangedListener { _, _, args ->
-            val override = args?.getString("title_override")
-            if (!override.isNullOrBlank()) {
-                supportActionBar?.title = override
-            }
-        }
     }
 
     // keeps all app controls clear of status, navigation, and display-cutout areas
