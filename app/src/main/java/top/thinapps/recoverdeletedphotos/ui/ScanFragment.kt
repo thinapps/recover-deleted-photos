@@ -506,7 +506,8 @@ class ScanFragment : Fragment() {
         vb.stateTitle.text = getString(R.string.android_13_required_title)
         vb.stateMessage.text = getString(R.string.android_13_required_msg)
         vb.statePrimary.text = getString(R.string.go_home)
-        vb.statePrimary.setOnClickListener {
+        vb.statePrimary.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             findNavController().popBackStack(R.id.homeFragment, false)
         }
         vb.stateSecondary.visibility = View.GONE
@@ -544,7 +545,8 @@ class ScanFragment : Fragment() {
         vb.stateTitle.text = getString(R.string.no_media_title)
         vb.stateMessage.text = getString(R.string.no_media_msg)
         vb.statePrimary.text = getString(R.string.go_home)
-        vb.statePrimary.setOnClickListener {
+        vb.statePrimary.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             findNavController().popBackStack(R.id.homeFragment, false)
         }
         vb.stateSecondary.visibility = View.GONE
@@ -568,7 +570,8 @@ class ScanFragment : Fragment() {
         }
         vb.stateSecondary.text = getString(R.string.go_home)
         vb.stateSecondary.visibility = View.VISIBLE
-        vb.stateSecondary.setOnClickListener {
+        vb.stateSecondary.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             findNavController().popBackStack(R.id.homeFragment, false)
         }
     }
