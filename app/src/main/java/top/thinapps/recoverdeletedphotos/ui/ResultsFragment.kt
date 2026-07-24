@@ -112,7 +112,7 @@ class ResultsFragment : Fragment() {
             val appContext = requireContext().applicationContext
             viewLifecycleOwner.lifecycleScope.launch {
                 val folderLabel = getRecoveryFolderLabel(chosen)
-                val toMusic = folderLabel.contains("Music")
+                val toMusic = folderLabel == "Music/Recovered"
 
                 try {
                     val recoveredCount = withContext(Dispatchers.IO) {
