@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -116,13 +117,17 @@ class ScanFragment : Fragment() {
         vm.results = emptyList()
 
         // cancel button stops work and returns to home safely
-        vb.cancelButton.setOnClickListener { cancel() }
+        vb.cancelButton.setOnClickListener { button ->
+            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            cancel()
+        }
 
         // make system back behave like cancel (stops jobs, clears results, goes home safely)
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     cancel()
                 }
             }
