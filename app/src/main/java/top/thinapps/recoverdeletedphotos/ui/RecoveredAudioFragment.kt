@@ -15,6 +15,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.HapticFeedbackConstantsCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -177,6 +179,9 @@ class RecoveredAudioFragment : Fragment() {
         try {
             startActivity(intent)
         } catch (_: Exception) {
+            _vb?.root?.let {
+                ViewCompat.performHapticFeedback(it, HapticFeedbackConstantsCompat.REJECT)
+            }
             Toast.makeText(
                 ctx,
                 getString(R.string.recovered_open_failed),
