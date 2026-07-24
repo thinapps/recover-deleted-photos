@@ -112,7 +112,7 @@ class ResultsFragment : Fragment() {
             val appContext = requireContext().applicationContext
             viewLifecycleOwner.lifecycleScope.launch {
                 val folderLabel = getRecoveryFolderLabel(chosen)
-                val toMusic = folderLabel == "Music/Recovered"
+                val isMusicRecovery = folderLabel == "Music/Recovered"
 
                 try {
                     val recoveredCount = withContext(Dispatchers.IO) {
@@ -121,13 +121,13 @@ class ResultsFragment : Fragment() {
                     selectedIds.clear()
                     if (_vb != null) adapter.notifyDataSetChanged()
                     activity?.let {
-                        SnackbarUtils.showRecovered(it, recoveredCount, toMusic)
+                        SnackbarUtils.showRecovered(it, recoveredCount, isMusicRecovery)
                     }
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (_: Throwable) {
                     activity?.let {
-                        SnackbarUtils.showRecovered(it, 0, toMusic)
+                        SnackbarUtils.showRecovered(it, 0, isMusicRecovery)
                     }
                 } finally {
                     isRecovering = false
