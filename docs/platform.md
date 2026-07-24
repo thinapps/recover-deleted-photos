@@ -25,6 +25,10 @@ App-owned layout dimensions, component sizes, spacing, shape measurements, eleva
 
 Layouts, styles, shape drawables, and vector intrinsic sizes reference these named resources instead of repeating hardcoded `dp` and `sp` values. Numeric values that are not Android dimensions, such as vector viewport coordinates, path data, ratios, weights, and alpha values, remain inline.
 
+## Interaction feedback
+
+The Home screen Start Scan, View Recovered Photos/Videos, and View Recovered Audio buttons request standard Android virtual-key haptic feedback when activated.
+
 ## Android 16 behavior
 
 Apps targeting API 36 run edge-to-edge without the previous opt-out. `MainActivity` enables edge-to-edge explicitly and applies status bar, navigation bar, and display-cutout insets to the activity root so the toolbar and fragment content remain fully accessible.
