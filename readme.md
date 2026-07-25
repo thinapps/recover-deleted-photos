@@ -3,7 +3,8 @@
 ## Changelog
 
 ### 1.3.1
-- added haptic feedback to key Home and Scan screen actions, including scan cancellation and back navigation
+- added haptic feedback across key Home, Scan, Results, and recovered-viewer actions and navigation
+- used toggle feedback for Results selection, confirmation for successful recovery, and rejection only for rare failures while leaving routine controls and successful file opening silent
 
 ### 1.3.0
 - clarified Home screen and empty-result scan messaging
