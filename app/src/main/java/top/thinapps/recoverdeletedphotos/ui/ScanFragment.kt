@@ -127,7 +127,6 @@ class ScanFragment : Fragment() {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     cancel()
                 }
             }
