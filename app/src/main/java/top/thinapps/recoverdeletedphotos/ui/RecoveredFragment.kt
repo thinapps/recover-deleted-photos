@@ -221,7 +221,7 @@ class RecoveredFragment : Fragment() {
             startActivity(intent)
         } catch (_: Exception) {
             _vb?.root?.let {
-                ViewCompat.performHapticFeedback(it, HapticFeedbackConstantsCompat.VIRTUAL_KEY)
+                ViewCompat.performHapticFeedback(it, HapticFeedbackConstantsCompat.REJECT)
             }
             Toast.makeText(
                 ctx,
