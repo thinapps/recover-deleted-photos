@@ -9,9 +9,12 @@ import android.os.CancellationSignal
 import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import top.thinapps.recoverdeletedphotos.model.MediaItem
 
 class MediaScanner(private val context: Context) {
@@ -99,17 +102,15 @@ class MediaScanner(private val context: Context) {
                 var offset = 0
                 var done = false
                 while (!done && coroutineContext.isActive) {
-                    val cancel = CancellationSignal()
                     val (sel, selArgs) = selectionFor(q)
-                    val consumed = resolverQuery(
+                    val consumed = resolverQueryCancellable(
                         uri = q.uri,
                         projection = projection,
                         sortCol = q.sortCol(),
                         selection = sel,
                         selectionArgs = selArgs,
                         limit = PAGE_SIZE,
-                        offset = offset,
-                        signal = cancel
+                        offset = offset
                     )?.use { c ->
                         consumeCursor(c, q, seenUris, out) { inc ->
                             found += inc
@@ -126,17 +127,15 @@ class MediaScanner(private val context: Context) {
                 }
             } else {
                 // legacy non-paged path
-                val cancel = CancellationSignal()
                 val (sel, selArgs) = selectionFor(q)
-                resolverQuery(
+                resolverQueryCancellable(
                     uri = q.uri,
                     projection = projection,
                     sortCol = q.sortCol(),
                     selection = sel,
                     selectionArgs = selArgs,
                     limit = null,
-                    offset = null,
-                    signal = cancel
+                    offset = null
                 )?.use { c ->
                     consumeCursor(c, q, seenUris, out) { inc ->
                         found += inc
@@ -201,6 +200,40 @@ class MediaScanner(private val context: Context) {
         if (Build.VERSION.SDK_INT >= 30) base += MediaStore.MediaColumns.IS_TRASHED
         base += MediaStore.MediaColumns.MIME_TYPE
         return base.toTypedArray()
+    }
+
+    // ties a provider CancellationSignal to coroutine cancellation
+    private suspend fun resolverQueryCancellable(
+        uri: Uri,
+        projection: Array<String>,
+        sortCol: String,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        limit: Int?,
+        offset: Int?
+    ): android.database.Cursor? = suspendCancellableCoroutine { continuation ->
+        val signal = CancellationSignal()
+        continuation.invokeOnCancellation { signal.cancel() }
+
+        try {
+            val cursor = resolverQuery(
+                uri = uri,
+                projection = projection,
+                sortCol = sortCol,
+                selection = selection,
+                selectionArgs = selectionArgs,
+                limit = limit,
+                offset = offset,
+                signal = signal
+            )
+            if (continuation.isActive) {
+                continuation.resume(cursor)
+            } else {
+                cursor?.close()
+            }
+        } catch (error: Throwable) {
+            if (continuation.isActive) continuation.resumeWithException(error)
+        }
     }
 
     // unified resolver query for both modern and legacy apis
