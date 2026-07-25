@@ -6,7 +6,9 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.coroutineContext
@@ -31,8 +33,8 @@ object Recovery {
         ok
     }
 
-    // single item copy using mediastore insert and stream copy
-    private fun copyOne(resolver: ContentResolver, item: MediaItem): Boolean {
+    // single item copy using mediastore insert and a cancellation-aware stream loop
+    private suspend fun copyOne(resolver: ContentResolver, item: MediaItem): Boolean {
         var destination: Uri? = null
 
         return try {
@@ -62,9 +64,16 @@ object Recovery {
 
             resolver.openInputStream(item.uri)?.use { input ->
                 resolver.openOutputStream(dest, "w")?.use { output ->
-                    input.copyTo(output)
-                }
-            } ?: throw IOException("null stream")
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    while (true) {
+                        coroutineContext.ensureActive()
+                        val read = input.read(buffer)
+                        if (read == -1) break
+                        output.write(buffer, 0, read)
+                    }
+                    output.flush()
+                } ?: throw IOException("null output stream")
+            } ?: throw IOException("null input stream")
 
             if (Build.VERSION.SDK_INT >= 29) {
                 val done = ContentValues().apply {
@@ -75,11 +84,19 @@ object Recovery {
                 }
             }
             true
+        } catch (cancelled: CancellationException) {
+            deletePartial(resolver, destination)
+            throw cancelled
         } catch (_: Exception) {
-            destination?.let { uri ->
-                runCatching { resolver.delete(uri, null, null) }
-            }
+            deletePartial(resolver, destination)
             false
+        }
+    }
+
+    // removes an incomplete destination after failure or cancellation
+    private fun deletePartial(resolver: ContentResolver, destination: Uri?) {
+        destination?.let { uri ->
+            runCatching { resolver.delete(uri, null, null) }
         }
     }
 
