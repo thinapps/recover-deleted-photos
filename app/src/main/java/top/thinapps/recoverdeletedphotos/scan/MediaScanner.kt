@@ -203,7 +203,7 @@ class MediaScanner(private val context: Context) {
         return base.toTypedArray()
     }
 
-    // unified resolver query for modern and legacy apis
+    // unified resolver query for both modern and legacy apis
     private fun resolverQuery(
         uri: Uri,
         projection: Array<String>,
