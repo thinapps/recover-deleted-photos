@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -83,10 +84,14 @@ class MediaScanner(private val context: Context) {
         // return early if nothing selected
         if (queries.isEmpty()) return@withContext emptyList<MediaItem>()
 
-        // calculate total count (helps progress tracking)
-        val total = queries.sumOf { q ->
-            safeQueryCount(q, selectionFor(q).first, selectionFor(q).second)
-        }.coerceAtLeast(1)
+        // calculate total count with the same cancellation support as result queries
+        var total = 0
+        for (q in queries) {
+            coroutineContext.ensureActive()
+            val (selection, selectionArgs) = selectionFor(q)
+            total += safeQueryCount(q, selection, selectionArgs)
+        }
+        total = total.coerceAtLeast(1)
 
         var found = 0
         var lastEmit = 0L
@@ -153,17 +158,20 @@ class MediaScanner(private val context: Context) {
     }
 
     // count rows safely with fallback to 0
-    private fun safeQueryCount(q: QuerySpec, selection: String?, args: Array<String>?): Int {
+    private suspend fun safeQueryCount(
+        q: QuerySpec,
+        selection: String?,
+        args: Array<String>?
+    ): Int {
         return try {
-            resolverQuery(
+            resolverQueryCancellable(
                 uri = q.uri,
                 projection = arrayOf(q.id),
                 sortCol = q.sortCol(),
                 selection = selection,
                 selectionArgs = args,
                 limit = null,
-                offset = null,
-                signal = null
+                offset = null
             )?.use { it.count } ?: 0
         } catch (_: SecurityException) {
             0
