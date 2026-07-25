@@ -41,6 +41,9 @@ class HomeFragment : Fragment() {
     // tracks which permissions were already requested in this view session
     private val requestedPermissions = mutableSetOf<String>()
 
+    // prevents duplicate navigation from rapid repeat taps
+    private var navigating = false
+
     // permission launcher for a single permission
     private val requestPerm = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -52,13 +55,11 @@ class HomeFragment : Fragment() {
         val type = pendingType
         pendingType = null
 
-        // reenable primary action after request completes
-        vb.startButton.isEnabled = true
-
         // navigate on success else refresh label
         if (granted && type != null) {
             navigateToScan(type)
         } else {
+            vb.startButton.isEnabled = true
             updateButtonText()
         }
     }
@@ -87,13 +88,13 @@ class HomeFragment : Fragment() {
         // open the in-app Recovered Photos/Videos list
         vb.buttonViewRecoveredPhotosVideos.setOnClickListener { button ->
             button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            findNavController().navigate(R.id.action_home_to_recovered)
+            navigateFromHome(R.id.action_home_to_recovered)
         }
 
         // open the in-app Recovered Audio list
         vb.buttonViewRecoveredAudio.setOnClickListener { button ->
             button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            findNavController().navigate(R.id.action_home_to_recovered_audio)
+            navigateFromHome(R.id.action_home_to_recovered_audio)
         }
 
         // disable scan features on pre android 13
@@ -124,7 +125,6 @@ class HomeFragment : Fragment() {
             // flow 1 permission granted -> start scan
             if (hasPermission(perm)) {
                 navigateToScan(type)
-                vb.startButton.isEnabled = true
                 return@setOnClickListener
             }
 
@@ -207,9 +207,28 @@ class HomeFragment : Fragment() {
         startActivity(intent)
     }
 
+    // navigates from Home only once while its destination is still active
+    private fun navigateFromHome(actionId: Int, args: Bundle? = null) {
+        if (navigating) return
+
+        val nav = findNavController()
+        if (nav.currentDestination?.id != R.id.homeFragment) return
+
+        navigating = true
+        try {
+            nav.navigate(actionId, args)
+        } catch (_: IllegalArgumentException) {
+            navigating = false
+            if (_vb != null && isAndroid13Plus()) updateButtonText()
+        } catch (_: IllegalStateException) {
+            navigating = false
+            if (_vb != null && isAndroid13Plus()) updateButtonText()
+        }
+    }
+
     // navigates to the scan screen with the selected type
     private fun navigateToScan(type: TypeChoice) {
-        findNavController().navigate(
+        navigateFromHome(
             R.id.action_home_to_scan,
             bundleOf(ARG_TYPE to type.name)
         )
@@ -217,6 +236,7 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        navigating = false
         if (_vb != null && isAndroid13Plus()) updateButtonText()
     }
 
