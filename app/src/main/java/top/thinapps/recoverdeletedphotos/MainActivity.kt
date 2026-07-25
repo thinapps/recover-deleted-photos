@@ -1,8 +1,6 @@
 package top.thinapps.recoverdeletedphotos
 
 import android.os.Bundle
-import android.view.HapticFeedbackConstants
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -51,21 +49,6 @@ class MainActivity : AppCompatActivity() {
         // wire navigation to action bar using nav graph labels for titles
         appBarConfig = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfig)
-
-        // add haptic feedback to system back in the recovered-file viewers
-        val recoveredBackCallback = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                vb.toolbar.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
-            }
-        }
-        onBackPressedDispatcher.addCallback(this, recoveredBackCallback)
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            recoveredBackCallback.isEnabled =
-                destination.id == R.id.recoveredFragment ||
-                    destination.id == R.id.recoveredAudioFragment
-        }
     }
 
     // keeps all app controls clear of status, navigation, and display-cutout areas
