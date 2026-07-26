@@ -2,6 +2,11 @@
 
 ## Changelog
 
+### 1.3.2
+- hardened scan and recovery cancellation, including active MediaStore queries, partial-copy cleanup, and preserving coroutine cancellation without showing false errors
+- guarded rapid Home navigation and assigned unique scan-result IDs across media types
+- kept app-bar Back haptics while allowing Android system Back to use platform feedback only, preventing duplicate vibration
+
 ### 1.3.1
 - added haptic feedback across key Home, Scan, Results, and recovered-viewer actions and navigation
 - used toggle feedback for Results selection, confirmation for successful recovery, and rejection only for rare failures while leaving routine controls and successful file opening silent
