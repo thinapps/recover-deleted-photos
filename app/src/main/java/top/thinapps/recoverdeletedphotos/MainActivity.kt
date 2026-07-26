@@ -1,6 +1,7 @@
 package top.thinapps.recoverdeletedphotos
 
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity() {
             return super.onSupportNavigateUp()
         }
 
-        // Route screens with custom back feedback or cleanup through the back dispatcher.
+        // App bar back keeps app-owned haptics while system back uses Android feedback only.
         val currentId = navController.currentDestination?.id
         if (
             currentId == R.id.scanFragment ||
@@ -89,6 +90,7 @@ class MainActivity : AppCompatActivity() {
             currentId == R.id.recoveredFragment ||
             currentId == R.id.recoveredAudioFragment
         ) {
+            vb.toolbar.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             onBackPressedDispatcher.onBackPressed()
             return true
         }
