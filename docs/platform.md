@@ -27,9 +27,11 @@ Layouts, styles, shape drawables, and vector intrinsic sizes reference these nam
 
 ## Interaction feedback
 
-The app requests standard Android haptic feedback for intentional actions. These include the Home screen scan and recovered-media buttons; Scan cancellation, back navigation, permission, retry, and Go Home actions; Results selection, recovery, layout changes, recovery outcomes, and back navigation; recovered-viewer back navigation; failed recovered-file opening; and opening the Privacy Policy dialog.
+The app requests standard Android haptic feedback for intentional app-owned actions. These include the Home screen scan and recovered-media buttons; Scan cancellation, permission, retry, Go Home, and app-bar Back actions; Results selection, recovery, layout changes, recovery outcomes, and app-bar Back; recovered-viewer app-bar Back; failed recovered-file opening; and opening the Privacy Policy dialog.
 
 App-owned feedback uses virtual-key feedback for ordinary actions, state-specific toggle feedback for Results selection, confirmation feedback after successful recovery, and rejection feedback only when recovery fails or completes with zero successful files, or when a recovered file cannot be opened. Direct vibrator APIs are not used.
+
+Toolbar Up/Back is an app-owned control and uses virtual-key feedback before routing through the screen's existing cleanup behavior. Android's system Back button or gesture does not request app-owned haptic feedback and relies on Android's platform feedback, avoiding duplicate vibration.
 
 Normal Results row and checkbox taps use state-specific toggle-on or toggle-off feedback. Long-press selection adds no app-owned haptic, allowing any platform long-press feedback without a second custom vibration.
 
