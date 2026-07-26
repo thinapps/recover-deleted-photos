@@ -81,7 +81,6 @@ class ResultsFragment : Fragment() {
         // handle system back to always go home
         val backCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 exitAndCleanup()
             }
         }
