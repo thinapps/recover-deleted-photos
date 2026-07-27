@@ -8,6 +8,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
+import android.os.OperationCanceledException
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -22,8 +24,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.thinapps.recoverdeletedphotos.MainActivity
@@ -32,6 +37,7 @@ import top.thinapps.recoverdeletedphotos.databinding.FragmentRecoveredAudioBindi
 import top.thinapps.recoverdeletedphotos.databinding.ItemMediaBinding
 import top.thinapps.recoverdeletedphotos.model.MediaItem
 import java.util.Locale
+import kotlin.coroutines.coroutineContext
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -110,7 +116,7 @@ class RecoveredAudioFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun loadItems(resolver: ContentResolver): List<MediaItem> {
+    private suspend fun loadItems(resolver: ContentResolver): List<MediaItem> {
         val out = mutableListOf<MediaItem>()
         val collection: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
@@ -121,6 +127,10 @@ class RecoveredAudioFragment : Fragment() {
             MediaStore.MediaColumns.DATE_ADDED,
             MediaStore.MediaColumns.MIME_TYPE
         )
+        val signal = CancellationSignal()
+        val cancellationHandle = coroutineContext.job.invokeOnCompletion {
+            signal.cancel()
+        }
 
         try {
             resolver.query(
@@ -128,7 +138,8 @@ class RecoveredAudioFragment : Fragment() {
                 projection,
                 "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
                 arrayOf("Music/Recovered", "Music/Recovered/"),
-                "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
+                "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC",
+                signal
             )?.use { c ->
                 val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                 val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -137,6 +148,8 @@ class RecoveredAudioFragment : Fragment() {
                 val mimeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
 
                 while (c.moveToNext()) {
+                    coroutineContext.ensureActive()
+
                     val id = c.getLong(idIdx)
                     val name = c.getString(nameIdx) ?: "Unnamed"
                     val size = c.getLong(sizeIdx)
@@ -158,10 +171,18 @@ class RecoveredAudioFragment : Fragment() {
                     out += item
                 }
             }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: OperationCanceledException) {
+            coroutineContext.ensureActive()
         } catch (_: SecurityException) {
             // permission can change while the viewer is loading; return no items
         } catch (_: IllegalArgumentException) {
             // return no items for unsupported or inaccessible provider queries
+        } catch (_: RuntimeException) {
+            // return no items for unexpected device-specific MediaStore failures
+        } finally {
+            cancellationHandle.dispose()
         }
 
         return out
