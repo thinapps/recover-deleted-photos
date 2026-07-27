@@ -516,6 +516,7 @@ class ScanFragment : Fragment() {
 
     // permission needed to proceed
     private fun showPermissionState() {
+        started = false
         showScanUI(false)
         vb.stateTitle.text = getString(R.string.perm_required_title)
         vb.stateMessage.text = getString(R.string.perm_required_msg)
