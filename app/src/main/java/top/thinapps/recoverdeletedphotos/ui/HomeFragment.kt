@@ -48,7 +48,8 @@ class HomeFragment : Fragment() {
     private val requestPerm = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
-        // skip if fragment is not attached
+        // skip if fragment or its view is no longer active
+        val binding = _vb ?: return@registerForActivityResult
         if (!isAdded) return@registerForActivityResult
 
         // read and clear pending type
@@ -59,7 +60,7 @@ class HomeFragment : Fragment() {
         if (granted && type != null) {
             navigateToScan(type)
         } else {
-            vb.startButton.isEnabled = true
+            binding.startButton.isEnabled = true
             updateButtonText()
         }
     }
