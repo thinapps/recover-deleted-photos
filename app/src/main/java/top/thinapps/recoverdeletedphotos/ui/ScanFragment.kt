@@ -95,6 +95,8 @@ class ScanFragment : Fragment() {
     // runtime permission launcher (android 13+)
     private val requestPerm =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (_vb == null || !isAdded) return@registerForActivityResult
+
             if (granted) {
                 if (!started) {
                     started = true
