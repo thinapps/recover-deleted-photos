@@ -2,6 +2,11 @@
 
 ## Changelog
 
+### 1.3.3
+- guarded Home and Scan permission callbacks against destroyed fragment views
+- reset scan state when media permission is lost so granting access can restart the scan
+- hardened recovered media and audio queries against provider failures and tied active queries to coroutine cancellation
+
 ### 1.3.2
 - hardened scan and recovery cancellation, including active MediaStore queries, partial-copy cleanup, and preserving coroutine cancellation without showing false errors
 - guarded rapid Home navigation and assigned unique scan-result IDs across media types
