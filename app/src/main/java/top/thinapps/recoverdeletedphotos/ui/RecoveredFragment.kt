@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
+import android.os.OperationCanceledException
 import android.provider.MediaStore
 import android.util.Size
 import android.view.LayoutInflater
@@ -30,8 +32,11 @@ import coil.load
 import coil.request.Parameters
 import coil.request.videoFrameMillis
 import coil.size.ViewSizeResolver
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.thinapps.recoverdeletedphotos.MainActivity
@@ -40,6 +45,7 @@ import top.thinapps.recoverdeletedphotos.databinding.FragmentRecoveredBinding
 import top.thinapps.recoverdeletedphotos.databinding.ItemMediaBinding
 import top.thinapps.recoverdeletedphotos.model.MediaItem
 import java.util.Locale
+import kotlin.coroutines.coroutineContext
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -139,14 +145,14 @@ class RecoveredFragment : Fragment() {
     }
 
     // query accessible Photos + Videos under the exact Pictures/Recovered path
-    private fun loadItems(
+    private suspend fun loadItems(
         resolver: ContentResolver,
         includeImages: Boolean,
         includeVideos: Boolean
     ): List<MediaItem> {
         val out = mutableListOf<MediaItem>()
 
-        fun queryCollection(collection: Uri) {
+        suspend fun queryCollection(collection: Uri) {
             val projection = arrayOf(
                 MediaStore.MediaColumns._ID,
                 MediaStore.MediaColumns.DISPLAY_NAME,
@@ -154,6 +160,10 @@ class RecoveredFragment : Fragment() {
                 MediaStore.MediaColumns.DATE_ADDED,
                 MediaStore.MediaColumns.MIME_TYPE
             )
+            val signal = CancellationSignal()
+            val cancellationHandle = coroutineContext.job.invokeOnCompletion {
+                signal.cancel()
+            }
 
             try {
                 resolver.query(
@@ -161,7 +171,8 @@ class RecoveredFragment : Fragment() {
                     projection,
                     "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
                     arrayOf("Pictures/Recovered", "Pictures/Recovered/"),
-                    "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
+                    "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC",
+                    signal
                 )?.use { c ->
                     val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                     val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -170,6 +181,8 @@ class RecoveredFragment : Fragment() {
                     val mimeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
 
                     while (c.moveToNext()) {
+                        coroutineContext.ensureActive()
+
                         val id = c.getLong(idIdx)
                         val name = c.getString(nameIdx) ?: "Unnamed"
                         val size = c.getLong(sizeIdx)
@@ -191,10 +204,18 @@ class RecoveredFragment : Fragment() {
                         out += item
                     }
                 }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: OperationCanceledException) {
+                coroutineContext.ensureActive()
             } catch (_: SecurityException) {
                 // permission can change while the viewer is loading; skip this collection
             } catch (_: IllegalArgumentException) {
                 // skip unsupported or inaccessible provider queries
+            } catch (_: RuntimeException) {
+                // skip unexpected provider failures from device-specific MediaStore implementations
+            } finally {
+                cancellationHandle.dispose()
             }
         }
 
