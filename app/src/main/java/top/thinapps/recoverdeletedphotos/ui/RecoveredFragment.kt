@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -36,8 +37,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import top.thinapps.recoverdeletedphotos.MainActivity
 import top.thinapps.recoverdeletedphotos.R
@@ -46,6 +47,8 @@ import top.thinapps.recoverdeletedphotos.databinding.ItemMediaBinding
 import top.thinapps.recoverdeletedphotos.model.MediaItem
 import java.util.Locale
 import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -160,19 +163,15 @@ class RecoveredFragment : Fragment() {
                 MediaStore.MediaColumns.DATE_ADDED,
                 MediaStore.MediaColumns.MIME_TYPE
             )
-            val signal = CancellationSignal()
-            val cancellationHandle = coroutineContext.job.invokeOnCompletion {
-                signal.cancel()
-            }
 
             try {
-                resolver.query(
-                    collection,
-                    projection,
-                    "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
-                    arrayOf("Pictures/Recovered", "Pictures/Recovered/"),
-                    "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC",
-                    signal
+                queryCancellable(
+                    resolver = resolver,
+                    collection = collection,
+                    projection = projection,
+                    selection = "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
+                    selectionArgs = arrayOf("Pictures/Recovered", "Pictures/Recovered/"),
+                    sortOrder = "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
                 )?.use { c ->
                     val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                     val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -214,8 +213,6 @@ class RecoveredFragment : Fragment() {
                 // skip unsupported or inaccessible provider queries
             } catch (_: RuntimeException) {
                 // skip unexpected provider failures from device-specific MediaStore implementations
-            } finally {
-                cancellationHandle.dispose()
             }
         }
 
@@ -227,6 +224,37 @@ class RecoveredFragment : Fragment() {
                 .thenByDescending { it.id }
                 .thenByDescending { it.uri.toString() }
         )
+    }
+
+    // ties a blocking provider query to coroutine cancellation
+    private suspend fun queryCancellable(
+        resolver: ContentResolver,
+        collection: Uri,
+        projection: Array<String>,
+        selection: String,
+        selectionArgs: Array<String>,
+        sortOrder: String
+    ): Cursor? = suspendCancellableCoroutine { continuation ->
+        val signal = CancellationSignal()
+        continuation.invokeOnCancellation { signal.cancel() }
+
+        try {
+            val cursor = resolver.query(
+                collection,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder,
+                signal
+            )
+            if (continuation.isActive) {
+                continuation.resume(cursor)
+            } else {
+                cursor?.close()
+            }
+        } catch (error: Throwable) {
+            if (continuation.isActive) continuation.resumeWithException(error)
+        }
     }
 
     private fun openItem(item: MediaItem) {
