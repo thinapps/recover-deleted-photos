@@ -61,6 +61,7 @@ object Recovery {
 
             val dest = resolver.insert(collection, values) ?: return false
             destination = dest
+            var bytesWritten = 0L
 
             resolver.openInputStream(item.uri)?.use { input ->
                 resolver.openOutputStream(dest, "w")?.use { output ->
@@ -70,10 +71,15 @@ object Recovery {
                         val read = input.read(buffer)
                         if (read == -1) break
                         output.write(buffer, 0, read)
+                        bytesWritten += read.toLong()
                     }
                     output.flush()
                 } ?: throw IOException("null output stream")
             } ?: throw IOException("null input stream")
+
+            if (bytesWritten <= 0L || bytesWritten != item.sizeBytes) {
+                throw IOException("recovered byte count mismatch")
+            }
 
             if (Build.VERSION.SDK_INT >= 29) {
                 val done = ContentValues().apply {
