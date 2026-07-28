@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -84,15 +83,6 @@ class MediaScanner(private val context: Context) {
         // return early if nothing selected
         if (queries.isEmpty()) return@withContext emptyList<MediaItem>()
 
-        // calculate total count with the same cancellation support as result queries
-        var total = 0
-        for (q in queries) {
-            coroutineContext.ensureActive()
-            val (selection, selectionArgs) = selectionFor(q)
-            total += safeQueryCount(q, selection, selectionArgs)
-        }
-        total = total.coerceAtLeast(1)
-
         var found = 0
         var lastEmit = 0L
 
@@ -119,7 +109,7 @@ class MediaScanner(private val context: Context) {
                     )?.use { c ->
                         consumeCursor(c, q, seenUris, out) { inc ->
                             found += inc
-                            maybeEmitProgress(onProgress, found, total, ::nanoNow, lastEmit).also {
+                            maybeEmitProgress(onProgress, found, ::nanoNow, lastEmit).also {
                                 lastEmit = it
                             }
                         }
@@ -144,7 +134,7 @@ class MediaScanner(private val context: Context) {
                 )?.use { c ->
                     consumeCursor(c, q, seenUris, out) { inc ->
                         found += inc
-                        maybeEmitProgress(onProgress, found, total, ::nanoNow, lastEmit).also {
+                        maybeEmitProgress(onProgress, found, ::nanoNow, lastEmit).also {
                             lastEmit = it
                         }
                     }
@@ -153,31 +143,8 @@ class MediaScanner(private val context: Context) {
         }
 
         // final progress update
-        onProgress(found, total)
+        onProgress(found, found)
         out
-    }
-
-    // count rows safely with fallback to 0
-    private suspend fun safeQueryCount(
-        q: QuerySpec,
-        selection: String?,
-        args: Array<String>?
-    ): Int {
-        return try {
-            resolverQueryCancellable(
-                uri = q.uri,
-                projection = arrayOf(q.id),
-                sortCol = q.sortCol(),
-                selection = selection,
-                selectionArgs = args,
-                limit = null,
-                offset = null
-            )?.use { it.count } ?: 0
-        } catch (_: SecurityException) {
-            0
-        } catch (_: IllegalArgumentException) {
-            0
-        }
     }
 
     // selection helper excludes pending rows and this app's recovery output folders
@@ -371,13 +338,12 @@ class MediaScanner(private val context: Context) {
     private fun maybeEmitProgress(
         onProgress: (Int, Int) -> Unit,
         found: Int,
-        total: Int,
         now: () -> Long,
         lastEmit: Long
     ): Long {
         val n = now()
-        if (found == total || n - lastEmit > 100_000_000L || (found and 127) == 0) {
-            onProgress(found, total)
+        if (n - lastEmit > 100_000_000L || (found and 127) == 0) {
+            onProgress(found, found)
             return n
         }
         return lastEmit
