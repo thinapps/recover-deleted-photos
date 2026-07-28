@@ -317,7 +317,7 @@ class ResultsFragment : Fragment() {
 
     // load video frames with a graceful fallback
     private fun loadVideoThumbWithFallback(imageView: ImageView, uri: Uri, mimeType: String?) {
-        imageView.tag = uri
+        imageView.setTag(R.id.thumb, uri)
         imageView.load(uri) {
             crossfade(true)
             videoFrameMillis(0)
@@ -326,7 +326,7 @@ class ResultsFragment : Fragment() {
             if (!mimeType.isNullOrBlank()) parameters(Parameters.Builder().set("coil#image_source_mime_type", mimeType).build())
             size(ViewSizeResolver(imageView))
             listener(onError = { _, _ ->
-                if (imageView.tag != uri) return@listener
+                if (imageView.getTag(R.id.thumb) != uri) return@listener
                 val owner = imageView.findViewTreeLifecycleOwner() ?: return@listener
                 owner.lifecycleScope.launch(Dispatchers.IO) {
                     try {
@@ -334,13 +334,13 @@ class ResultsFragment : Fragment() {
                         val height = imageView.height.coerceAtLeast(200)
                         val bitmap = imageView.context.contentResolver.loadThumbnail(uri, Size(width, height), CancellationSignal())
                         withContext(Dispatchers.Main) {
-                            if (imageView.tag == uri) imageView.setImageBitmap(bitmap)
+                            if (imageView.getTag(R.id.thumb) == uri) imageView.setImageBitmap(bitmap)
                         }
                     } catch (cancelled: CancellationException) {
                         throw cancelled
                     } catch (_: Throwable) {
                         withContext(Dispatchers.Main) {
-                            if (imageView.tag != uri) return@withContext
+                            if (imageView.getTag(R.id.thumb) != uri) return@withContext
                             imageView.load(uri) {
                                 crossfade(true)
                                 videoFrameMillis(1_000)
@@ -403,7 +403,7 @@ class ResultsFragment : Fragment() {
                     b.thumb.resolveThemeColorInt(com.google.android.material.R.attr.colorSecondaryContainer, com.google.android.material.R.attr.colorSecondary)
                 else Color.TRANSPARENT
                 b.thumb.setBackgroundColor(bgColor)
-                b.thumb.tag = item.uri
+                b.thumb.setTag(R.id.thumb, item.uri)
 
                 if (isVideo) {
                     loadVideoThumbWithFallback(b.thumb, item.uri, mimeType)
@@ -462,7 +462,7 @@ class ResultsFragment : Fragment() {
                     b.thumb.resolveThemeColorInt(com.google.android.material.R.attr.colorSecondaryContainer, com.google.android.material.R.attr.colorSecondary)
                 else Color.TRANSPARENT
                 b.thumb.setBackgroundColor(bgColor)
-                b.thumb.tag = item.uri
+                b.thumb.setTag(R.id.thumb, item.uri)
 
                 if (isVideo) {
                     loadVideoThumbWithFallback(b.thumb, item.uri, mimeType)
