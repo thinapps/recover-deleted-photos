@@ -77,7 +77,13 @@ object Recovery {
                 } ?: throw IOException("null output stream")
             } ?: throw IOException("null input stream")
 
-            if (bytesWritten <= 0L || bytesWritten != item.sizeBytes) {
+            coroutineContext.ensureActive()
+            if (bytesWritten <= 0L) {
+                throw IOException("empty recovered copy")
+            }
+
+            val persistedBytes = destinationSize(resolver, dest)
+            if (persistedBytes != bytesWritten) {
                 throw IOException("recovered byte count mismatch")
             }
 
@@ -97,6 +103,30 @@ object Recovery {
             deletePartial(resolver, destination)
             false
         }
+    }
+
+    // reads the completed destination size before making the item visible
+    private fun destinationSize(resolver: ContentResolver, destination: Uri): Long {
+        val queriedSize = resolver.query(
+            destination,
+            arrayOf(MediaStore.MediaColumns.SIZE),
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            val sizeIndex = cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)
+            if (sizeIndex != -1 && cursor.moveToFirst() && !cursor.isNull(sizeIndex)) {
+                cursor.getLong(sizeIndex)
+            } else {
+                null
+            }
+        }
+        if (queriedSize != null && queriedSize >= 0L) return queriedSize
+
+        val statSize = resolver.openFileDescriptor(destination, "r")?.use { it.statSize }
+            ?: throw IOException("unable to verify recovered byte count")
+        if (statSize < 0L) throw IOException("unable to verify recovered byte count")
+        return statSize
     }
 
     // removes an incomplete destination after failure or cancellation
