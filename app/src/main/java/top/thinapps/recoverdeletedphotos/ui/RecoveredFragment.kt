@@ -292,6 +292,7 @@ class RecoveredFragment : Fragment() {
 
     // load video frames with a graceful fallback
     private fun loadVideoThumbWithFallback(iv: ImageView, uri: Uri, mime: String?) {
+        iv.tag = uri
         iv.load(uri) {
             crossfade(true)
             videoFrameMillis(0)
@@ -307,6 +308,7 @@ class RecoveredFragment : Fragment() {
             size(ViewSizeResolver(iv))
             listener(
                 onError = { _, _ ->
+                    if (iv.tag != uri) return@listener
                     val owner = iv.findViewTreeLifecycleOwner() ?: return@listener
                     owner.lifecycleScope.launch(Dispatchers.IO) {
                         try {
@@ -318,10 +320,13 @@ class RecoveredFragment : Fragment() {
                                 null
                             )
                             withContext(Dispatchers.Main) {
-                                iv.setImageBitmap(thumb)
+                                if (iv.tag == uri) iv.setImageBitmap(thumb)
                             }
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
                         } catch (_: Throwable) {
                             withContext(Dispatchers.Main) {
+                                if (iv.tag != uri) return@withContext
                                 iv.load(uri) {
                                     crossfade(true)
                                     videoFrameMillis(1_000)
@@ -362,6 +367,7 @@ class RecoveredFragment : Fragment() {
             Color.TRANSPARENT
         }
         binding.thumb.setBackgroundColor(bgColor)
+        binding.thumb.tag = item.uri
 
         if (isVideo) {
             loadVideoThumbWithFallback(binding.thumb, item.uri, mt)
