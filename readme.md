@@ -2,6 +2,11 @@
 
 ## Changelog
 
+### 1.3.4
+- prevented asynchronous video-thumbnail fallbacks from updating recycled Results and Recovered rows
+- removed the redundant MediaStore count-query pass so scans read each collection only for actual results
+- verified streamed recovery byte counts before publishing and deleted mismatched or empty copies
+
 ### 1.3.3
 - guarded Home and Scan permission callbacks against destroyed fragment views
 - reset scan state when media permission is lost so granting access can restart the scan
