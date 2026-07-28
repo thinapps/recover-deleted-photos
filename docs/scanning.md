@@ -7,6 +7,7 @@ It can inspect only media records that Android exposes through MediaStore and ca
 - normal and trashed media exposed by the device are included
 - files in `Pictures/Recovered` and `Music/Recovered` are excluded from future scans
 - zero-size entries and entries without a MIME type are excluded
+- collections are queried directly for results without a separate preliminary count pass
 - large result sets are read in pages ordered by date and MediaStore ID
 - duplicate content URIs are ignored, so each scan result is counted once
 - the live counter reflects the number of unique results found during the scan
