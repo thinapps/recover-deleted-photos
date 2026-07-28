@@ -97,7 +97,7 @@ Both viewers still show a permission-required message instead of launching a per
 
 Recovery copies are inserted through MediaStore into `Pictures/Recovered` or `Music/Recovered`. On supported Android versions, creating these app-owned entries does not require a separate broad write-storage permission. Reading the source still depends on the relevant media permission and URI access remaining valid.
 
-Each destination remains pending until the streamed byte count is positive and matches the source MediaStore size. Mismatched or empty copies are deleted instead of being published or counted as recovered.
+Each destination remains pending until its persisted size is positive and matches the number of bytes streamed into it. Mismatched, unverifiable, or empty copies are deleted instead of being published or counted as recovered.
 
 Recovery work is tied to the Results view lifecycle. Leaving or recreating the Results view cancels its recovery coroutine, cancellation is not reported as a failed recovery, and completion cleanup does not access a destroyed view.
 
