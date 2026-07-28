@@ -292,7 +292,7 @@ class RecoveredFragment : Fragment() {
 
     // load video frames with a graceful fallback
     private fun loadVideoThumbWithFallback(iv: ImageView, uri: Uri, mime: String?) {
-        iv.tag = uri
+        iv.setTag(R.id.thumb, uri)
         iv.load(uri) {
             crossfade(true)
             videoFrameMillis(0)
@@ -308,7 +308,7 @@ class RecoveredFragment : Fragment() {
             size(ViewSizeResolver(iv))
             listener(
                 onError = { _, _ ->
-                    if (iv.tag != uri) return@listener
+                    if (iv.getTag(R.id.thumb) != uri) return@listener
                     val owner = iv.findViewTreeLifecycleOwner() ?: return@listener
                     owner.lifecycleScope.launch(Dispatchers.IO) {
                         try {
@@ -320,13 +320,13 @@ class RecoveredFragment : Fragment() {
                                 null
                             )
                             withContext(Dispatchers.Main) {
-                                if (iv.tag == uri) iv.setImageBitmap(thumb)
+                                if (iv.getTag(R.id.thumb) == uri) iv.setImageBitmap(thumb)
                             }
                         } catch (cancelled: CancellationException) {
                             throw cancelled
                         } catch (_: Throwable) {
                             withContext(Dispatchers.Main) {
-                                if (iv.tag != uri) return@withContext
+                                if (iv.getTag(R.id.thumb) != uri) return@withContext
                                 iv.load(uri) {
                                     crossfade(true)
                                     videoFrameMillis(1_000)
@@ -367,7 +367,7 @@ class RecoveredFragment : Fragment() {
             Color.TRANSPARENT
         }
         binding.thumb.setBackgroundColor(bgColor)
-        binding.thumb.tag = item.uri
+        binding.thumb.setTag(R.id.thumb, item.uri)
 
         if (isVideo) {
             loadVideoThumbWithFallback(binding.thumb, item.uri, mt)
