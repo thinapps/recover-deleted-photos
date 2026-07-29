@@ -2,6 +2,9 @@
 
 ## Changelog
 
+### 1.3.5
+- returned restored Results screens to Home with a clear message when temporary scan data is no longer available
+
 ### 1.3.4
 - prevented asynchronous video-thumbnail fallbacks from updating recycled Results and Recovered rows
 - removed the redundant MediaStore count-query pass so scans read each collection only for actual results
@@ -88,7 +91,7 @@
 ### 1.1.0
 - added a new in-app viewer for recovered photos and videos
 - browse all files saved in the `Pictures/Recovered` directory directly inside the app
-- wired the Home screen “Recovered Photos/Videos” button to the new viewer
+- wired the Home screen “Recovered Photos/Videos” button to navigate to the new viewer
 - kept the “Recovered Audio” button as a placeholder for a future update
 - added new UI strings and navigation entries needed for the recovered viewer
 
