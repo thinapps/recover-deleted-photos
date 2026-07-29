@@ -43,6 +43,7 @@
     <!-- results screen -->
     <string name="results_title">Results</string>
     <string name="empty_art">No recoverable media found</string>
+    <string name="scan_results_expired">Scan results expired. Please scan again.</string>
     <string name="recover_selected">Recover Selected</string>
     <string name="recover_selected_count">Recover Selected (%1$d)</string>
     <string name="recovering">Recovering...</string>
