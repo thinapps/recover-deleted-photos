@@ -4,6 +4,7 @@
 
 ### 1.3.5
 - returned restored Results screens to Home with a clear message when temporary scan data is no longer available
+- distinguished recovered-viewer query failures from genuinely empty recovery folders while preserving partial photo/video results
 
 ### 1.3.4
 - prevented asynchronous video-thumbnail fallbacks from updating recycled Results and Recovered rows
@@ -185,7 +186,7 @@
 
 ### 0.17.22
 - changed the List View toggle icon from 16 units to 18 units to match the Grid View icon
-- replaced media type selector row in Home screen with a MaterialCardView for cleaner grouping
+- replaced media type selection row in Home screen with a MaterialCardView for cleaner grouping
 
 ### 0.17.21
 - fixed persistent white-on-white toolbar icon issue by adding `android:fillColor="@android:color/white"` to the <path> tag in both `ic_view_grid.xml` and `ic_view_list.xml`, ensuring the Vector Drawable is fully receptive to theme tinting
