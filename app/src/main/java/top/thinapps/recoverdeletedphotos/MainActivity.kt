@@ -3,6 +3,7 @@ package top.thinapps.recoverdeletedphotos
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -13,9 +14,14 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.google.android.material.snackbar.Snackbar
 import top.thinapps.recoverdeletedphotos.databinding.ActivityMainBinding
+import top.thinapps.recoverdeletedphotos.ui.ScanViewModel
 
 class MainActivity : AppCompatActivity() {
+
+    // shared scan state used by the scan and results fragments
+    private val scanViewModel: ScanViewModel by viewModels()
 
     // navigation app bar configuration for proper up button behavior
     private lateinit var appBarConfig: AppBarConfiguration
@@ -50,6 +56,25 @@ class MainActivity : AppCompatActivity() {
         // wire navigation to action bar using nav graph labels for titles
         appBarConfig = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfig)
+
+        recoverExpiredScanResults(savedInstanceState)
+    }
+
+    // returns a restored Results screen to Home when its temporary data no longer exists
+    private fun recoverExpiredScanResults(savedInstanceState: Bundle?) {
+        if (
+            savedInstanceState == null ||
+            navController.currentDestination?.id != R.id.resultsFragment ||
+            scanViewModel.results.isNotEmpty()
+        ) {
+            return
+        }
+
+        if (navController.popBackStack(R.id.homeFragment, false)) {
+            vb.root.post {
+                Snackbar.make(vb.root, R.string.scan_results_expired, Snackbar.LENGTH_LONG).show()
+            }
+        }
     }
 
     // keeps all app controls clear of status, navigation, and display-cutout areas
