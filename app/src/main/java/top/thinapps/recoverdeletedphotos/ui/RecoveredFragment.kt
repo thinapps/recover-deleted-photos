@@ -59,6 +59,11 @@ class RecoveredFragment : Fragment() {
     private lateinit var adapter: RecoveredAdapter
     private var loadJob: Job? = null
 
+    private data class LoadResult(
+        val items: List<MediaItem>,
+        val failed: Boolean
+    )
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -105,7 +110,7 @@ class RecoveredFragment : Fragment() {
         binding.stateMessage.text = getString(R.string.recovered_loading)
 
         loadJob = viewLifecycleOwner.lifecycleScope.launch {
-            val list = withContext(Dispatchers.IO) {
+            val result = withContext(Dispatchers.IO) {
                 loadItems(
                     resolver = resolver,
                     includeImages = canReadImages,
@@ -114,11 +119,13 @@ class RecoveredFragment : Fragment() {
             }
 
             val currentBinding = _vb ?: return@launch
-            if (list.isEmpty()) {
-                currentBinding.stateMessage.text = getString(R.string.recovered_empty)
+            if (result.items.isEmpty()) {
+                currentBinding.stateMessage.text = getString(
+                    if (result.failed) R.string.recovered_load_failed else R.string.recovered_empty
+                )
             } else {
                 currentBinding.stateMessage.isVisible = false
-                adapter.submit(list)
+                adapter.submit(result.items)
             }
         }
     }
@@ -152,8 +159,9 @@ class RecoveredFragment : Fragment() {
         resolver: ContentResolver,
         includeImages: Boolean,
         includeVideos: Boolean
-    ): List<MediaItem> {
+    ): LoadResult {
         val out = mutableListOf<MediaItem>()
+        var failed = false
 
         suspend fun queryCollection(collection: Uri) {
             val projection = arrayOf(
@@ -165,14 +173,20 @@ class RecoveredFragment : Fragment() {
             )
 
             try {
-                queryCancellable(
+                val cursor = queryCancellable(
                     resolver = resolver,
                     collection = collection,
                     projection = projection,
                     selection = "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
                     selectionArgs = arrayOf("Pictures/Recovered", "Pictures/Recovered/"),
                     sortOrder = "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
-                )?.use { c ->
+                )
+                if (cursor == null) {
+                    failed = true
+                    return
+                }
+
+                cursor.use { c ->
                     val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                     val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
                     val sizeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
@@ -207,23 +221,28 @@ class RecoveredFragment : Fragment() {
                 throw cancelled
             } catch (_: OperationCanceledException) {
                 coroutineContext.ensureActive()
+                failed = true
             } catch (_: SecurityException) {
-                // permission can change while the viewer is loading; skip this collection
+                // permission can change while the viewer is loading
+                failed = true
             } catch (_: IllegalArgumentException) {
-                // skip unsupported or inaccessible provider queries
+                // unsupported or inaccessible provider query
+                failed = true
             } catch (_: RuntimeException) {
-                // skip unexpected provider failures from device-specific MediaStore implementations
+                // unexpected provider failure from a device-specific MediaStore implementation
+                failed = true
             }
         }
 
         if (includeImages) queryCollection(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         if (includeVideos) queryCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
 
-        return out.sortedWith(
+        val sorted = out.sortedWith(
             compareByDescending<MediaItem> { it.dateAddedSec }
                 .thenByDescending { it.id }
                 .thenByDescending { it.uri.toString() }
         )
+        return LoadResult(sorted, failed)
     }
 
     // ties a blocking provider query to coroutine cancellation
