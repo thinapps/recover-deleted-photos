@@ -82,12 +82,14 @@ The Recovered Photos/Videos viewer checks image and video permissions independen
 - video access loads recovered videos
 - either permission is sufficient to open the combined viewer
 - collections without permission are skipped
-- permission or provider failures are handled independently per collection
-- the accessible image and video results are merged and sorted newest-first
+- permission and provider failures are tracked independently per queried collection
+- available results are still shown when one queried collection succeeds and another fails
+- if no files are returned after a query failure, the viewer shows a load-failure message instead of an empty-folder message
+- accessible image and video results are merged and sorted newest-first
 
 The viewer matches only the exact `Pictures/Recovered` path, with or without MediaStore's trailing slash. It does not include similarly named folders.
 
-The Recovered Audio viewer checks `READ_MEDIA_AUDIO`, safely handles permission or provider query failures, and matches only the exact `Music/Recovered` path, with or without the trailing slash.
+The Recovered Audio viewer checks `READ_MEDIA_AUDIO`, distinguishes provider or permission failures from a genuinely empty folder, and matches only the exact `Music/Recovered` path, with or without the trailing slash.
 
 Both viewers reload in `onResume`, including after returning from Android settings or an external file viewer. Any previous query job is cancelled before the refreshed query starts, and view destruction cancels the active load.
 
