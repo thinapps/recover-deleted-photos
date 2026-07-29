@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 1.3.6
+- moved Results sorting off the main thread and prevented stale sort requests from replacing newer orders
+- cancelled row-scoped video-thumbnail fallbacks on rebind or recycle and connected provider work to coroutine cancellation
+
 ### 1.3.5
 - returned restored Results screens to Home with a clear message when temporary scan data is no longer available
 - distinguished recovered-viewer query failures from genuinely empty recovery folders while preserving partial photo/video results
@@ -273,7 +277,7 @@
 
 ### 0.17.3
 - resolved (further) toolbar icon visibility issues in both light and dark modes
-- restructured `themes.xml` to use Material 3 toolbar overlays in both light and dark modes
+- restructured `themes.xml` to use Material 3 toolbar overlays in both light and dark themes
 - applied unified `toolbarStyle` reference for proper tint and contrast across all themes
 - removed redundant color attributes from `activity_main.xml` to rely fully on theme-driven styling
 
@@ -417,7 +421,7 @@
 
 ### 0.14.8
 - replaced menu icon with Material view list icon and removed hardcoded fill colors
-- added md_surface_variant (#F5F5F5) in colors.xml for sort bar background
+- added md_surface_variant (#F5F5F5) in `colors.xml`
 - adjusted sort bar padding and height
 
 ### 0.14.7
