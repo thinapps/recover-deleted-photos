@@ -1,6 +1,7 @@
 package top.thinapps.recoverdeletedphotos.ui
 
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -22,7 +23,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -37,7 +37,9 @@ import coil.request.videoFrameMillis
 import coil.size.ViewSizeResolver
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import top.thinapps.recoverdeletedphotos.R
 import top.thinapps.recoverdeletedphotos.databinding.FragmentResultsBinding
@@ -46,6 +48,8 @@ import top.thinapps.recoverdeletedphotos.databinding.ItemMediaGridBinding
 import top.thinapps.recoverdeletedphotos.model.MediaItem
 import top.thinapps.recoverdeletedphotos.recover.Recovery
 import java.text.Collator
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -66,9 +70,26 @@ class ResultsFragment : Fragment() {
     // prevents user actions during recovery
     private var isRecovering = false
 
-    // sorting options
+    // sorting options and active background sort
     private enum class Sort { DATE_DESC, DATE_ASC, SIZE_DESC, SIZE_ASC, NAME_ASC, NAME_DESC }
     private var currentSort: Sort = Sort.DATE_DESC
+    private var sortJob: Job? = null
+    private var sortGeneration = 0L
+
+    // row-owned fallback work for video thumbnails
+    private class ThumbnailRequest {
+        var job: Job? = null
+        var generation: Long = 0L
+            private set
+
+        fun cancel() {
+            generation++
+            job?.cancel()
+            job = null
+        }
+
+        fun isCurrent(token: Long): Boolean = generation == token
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _vb = FragmentResultsBinding.inflate(inflater, container, false)
@@ -98,8 +119,8 @@ class ResultsFragment : Fragment() {
         // disable change animations for faster redraws
         (vb.list.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 
+        vb.empty.isVisible = vm.results.isEmpty()
         applySortAndShow()
-        vb.empty.isVisible = adapter.itemCount == 0
         updateRecoverButton()
 
         // handle recover button click
@@ -239,28 +260,50 @@ class ResultsFragment : Fragment() {
         (vb.list.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
-    // sort results and refresh adapter
+    // sort results off the main thread and submit only the latest requested order
     private fun applySortAndShow() {
-        val base = vm.results.orEmpty()
-        val collator = Collator.getInstance().apply { strength = Collator.PRIMARY }
+        sortJob?.cancel()
+        val generation = ++sortGeneration
+        val base = vm.results
+        val requestedSort = currentSort
 
-        val sorted = when (currentSort) {
+        if (base.isEmpty()) {
+            vb.empty.isVisible = true
+            adapter.submitList(emptyList())
+            return
+        }
+
+        // keep the previous list visible while a new ordering is prepared
+        vb.empty.isVisible = false
+        sortJob = viewLifecycleOwner.lifecycleScope.launch {
+            val sorted = withContext(Dispatchers.Default) {
+                sortItems(base, requestedSort)
+            }
+            if (generation != sortGeneration) return@launch
+
+            adapter.submitList(sorted) {
+                if (generation != sortGeneration) return@submitList
+                val binding = _vb ?: return@submitList
+                val layoutManager = binding.list.layoutManager
+                (layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(0, 0)
+                    ?: binding.list.scrollToPosition(0)
+                binding.empty.isVisible = false
+            }
+        }
+    }
+
+    private fun sortItems(base: List<MediaItem>, sort: Sort): List<MediaItem> {
+        return when (sort) {
             Sort.DATE_DESC -> base.sortedByDescending { it.effectiveDateMs }
             Sort.DATE_ASC -> base.sortedBy { it.effectiveDateMs }
             Sort.SIZE_DESC -> base.sortedByDescending { it.sizeBytes }
             Sort.SIZE_ASC -> base.sortedBy { it.sizeBytes }
-            Sort.NAME_ASC -> base.sortedWith(compareBy(collator) { it.displayName })
-            Sort.NAME_DESC -> base.sortedWith(compareBy(collator) { it.displayName }).asReversed()
-        }
-
-        adapter.submitList(sorted) {
-            val binding = _vb ?: return@submitList
-            if (sorted.isNotEmpty()) {
-                val layoutManager = binding.list.layoutManager
-                (layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(0, 0)
-                    ?: binding.list.scrollToPosition(0)
+            Sort.NAME_ASC,
+            Sort.NAME_DESC -> {
+                val collator = Collator.getInstance().apply { strength = Collator.PRIMARY }
+                val sorted = base.sortedWith(compareBy(collator) { it.displayName })
+                if (sort == Sort.NAME_DESC) sorted.asReversed() else sorted
             }
-            binding.empty.isVisible = sorted.isEmpty()
         }
     }
 
@@ -300,11 +343,6 @@ class ResultsFragment : Fragment() {
         else getString(R.string.recover_selected)
     }
 
-    override fun onDestroyView() {
-        _vb = null
-        super.onDestroyView()
-    }
-
     // detect whether all selected items are audio
     private fun areAllItemsAudio(items: List<MediaItem>): Boolean {
         val contentResolver = requireContext().contentResolver
@@ -315,39 +353,66 @@ class ResultsFragment : Fragment() {
         }
     }
 
-    // load video frames with a graceful fallback
-    private fun loadVideoThumbWithFallback(imageView: ImageView, uri: Uri, mimeType: String?) {
+    // load video frames with a row-owned, cancellation-aware provider fallback
+    private fun loadVideoThumbWithFallback(
+        imageView: ImageView,
+        uri: Uri,
+        mimeType: String?,
+        request: ThumbnailRequest
+    ) {
+        val token = request.generation
         imageView.setTag(R.id.thumb, uri)
         imageView.load(uri) {
             crossfade(true)
             videoFrameMillis(0)
             allowHardware(false)
             memoryCacheKey("$uri#t=0ms")
-            if (!mimeType.isNullOrBlank()) parameters(Parameters.Builder().set("coil#image_source_mime_type", mimeType).build())
+            if (!mimeType.isNullOrBlank()) {
+                parameters(Parameters.Builder().set("coil#image_source_mime_type", mimeType).build())
+            }
             size(ViewSizeResolver(imageView))
             listener(onError = { _, _ ->
-                if (imageView.getTag(R.id.thumb) != uri) return@listener
-                val owner = imageView.findViewTreeLifecycleOwner() ?: return@listener
-                owner.lifecycleScope.launch(Dispatchers.IO) {
+                if (
+                    imageView.getTag(R.id.thumb) != uri ||
+                    !request.isCurrent(token)
+                ) {
+                    return@listener
+                }
+
+                request.job = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     try {
                         val width = imageView.width.coerceAtLeast(200)
                         val height = imageView.height.coerceAtLeast(200)
-                        val bitmap = imageView.context.contentResolver.loadThumbnail(uri, Size(width, height), CancellationSignal())
+                        val bitmap = loadThumbnailCancellable(imageView, uri, Size(width, height))
                         withContext(Dispatchers.Main) {
-                            if (imageView.getTag(R.id.thumb) == uri) imageView.setImageBitmap(bitmap)
+                            if (
+                                imageView.getTag(R.id.thumb) == uri &&
+                                request.isCurrent(token)
+                            ) {
+                                imageView.setImageBitmap(bitmap)
+                            }
                         }
                     } catch (cancelled: CancellationException) {
                         throw cancelled
                     } catch (_: Throwable) {
                         withContext(Dispatchers.Main) {
-                            if (imageView.getTag(R.id.thumb) != uri) return@withContext
+                            if (
+                                imageView.getTag(R.id.thumb) != uri ||
+                                !request.isCurrent(token)
+                            ) {
+                                return@withContext
+                            }
                             imageView.load(uri) {
                                 crossfade(true)
                                 videoFrameMillis(1_000)
                                 allowHardware(false)
                                 memoryCacheKey("$uri#t=1000ms")
                                 if (!mimeType.isNullOrBlank()) {
-                                    parameters(Parameters.Builder().set("coil#image_source_mime_type", mimeType).build())
+                                    parameters(
+                                        Parameters.Builder()
+                                            .set("coil#image_source_mime_type", mimeType)
+                                            .build()
+                                    )
                                 }
                                 size(ViewSizeResolver(imageView))
                             }
@@ -355,6 +420,22 @@ class ResultsFragment : Fragment() {
                     }
                 }
             })
+        }
+    }
+
+    private suspend fun loadThumbnailCancellable(
+        imageView: ImageView,
+        uri: Uri,
+        size: Size
+    ): Bitmap = suspendCancellableCoroutine { continuation ->
+        val signal = CancellationSignal()
+        continuation.invokeOnCancellation { signal.cancel() }
+
+        try {
+            val bitmap = imageView.context.contentResolver.loadThumbnail(uri, size, signal)
+            if (continuation.isActive) continuation.resume(bitmap)
+        } catch (error: Throwable) {
+            if (continuation.isActive) continuation.resumeWithException(error)
         }
     }
 
@@ -391,9 +472,21 @@ class ResultsFragment : Fragment() {
             }
         }
 
+        override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+            when (holder) {
+                is ListVH -> holder.recycle()
+                is GridVH -> holder.recycle()
+            }
+            super.onViewRecycled(holder)
+        }
+
         // list mode
         private inner class ListVH(private val b: ItemMediaBinding) : RecyclerView.ViewHolder(b.root) {
+            private val thumbnailRequest = ThumbnailRequest()
+
             fun bind(item: MediaItem) {
+                thumbnailRequest.cancel()
+
                 val mimeType = item.mimeType.takeIf { it.isNotBlank() }
                 val isVideo = item.isProbablyVideo || (mimeType?.startsWith("video/") == true)
                 val isAudio = !isVideo && (mimeType?.startsWith("audio/") == true)
@@ -406,7 +499,7 @@ class ResultsFragment : Fragment() {
                 b.thumb.setTag(R.id.thumb, item.uri)
 
                 if (isVideo) {
-                    loadVideoThumbWithFallback(b.thumb, item.uri, mimeType)
+                    loadVideoThumbWithFallback(b.thumb, item.uri, mimeType, thumbnailRequest)
                 } else {
                     b.thumb.load(item.uri) {
                         crossfade(true)
@@ -437,7 +530,7 @@ class ResultsFragment : Fragment() {
                     if (!isRecovering) onToggleSelect(item, button)
                 }
 
-                val trashed = (item.origin == MediaItem.Origin.TRASHED)
+                val trashed = item.origin == MediaItem.Origin.TRASHED
                 b.badge?.isVisible = trashed
 
                 b.root.setOnClickListener { row ->
@@ -448,11 +541,20 @@ class ResultsFragment : Fragment() {
                     !isRecovering
                 }
             }
+
+            fun recycle() {
+                thumbnailRequest.cancel()
+                b.thumb.setTag(R.id.thumb, null)
+            }
         }
 
         // grid mode
         private inner class GridVH(private val b: ItemMediaGridBinding) : RecyclerView.ViewHolder(b.root) {
+            private val thumbnailRequest = ThumbnailRequest()
+
             fun bind(item: MediaItem) {
+                thumbnailRequest.cancel()
+
                 val mimeType = item.mimeType.takeIf { it.isNotBlank() }
                 val isVideo = item.isProbablyVideo || (mimeType?.startsWith("video/") == true)
                 val isAudio = !isVideo && (mimeType?.startsWith("audio/") == true)
@@ -465,7 +567,7 @@ class ResultsFragment : Fragment() {
                 b.thumb.setTag(R.id.thumb, item.uri)
 
                 if (isVideo) {
-                    loadVideoThumbWithFallback(b.thumb, item.uri, mimeType)
+                    loadVideoThumbWithFallback(b.thumb, item.uri, mimeType, thumbnailRequest)
                 } else {
                     b.thumb.load(item.uri) {
                         crossfade(true)
@@ -492,7 +594,7 @@ class ResultsFragment : Fragment() {
                     if (!isRecovering) onToggleSelect(item, button)
                 }
 
-                val trashed = (item.origin == MediaItem.Origin.TRASHED)
+                val trashed = item.origin == MediaItem.Origin.TRASHED
                 b.badge?.isVisible = trashed
 
                 b.root.setOnClickListener { row ->
@@ -503,7 +605,20 @@ class ResultsFragment : Fragment() {
                     !isRecovering
                 }
             }
+
+            fun recycle() {
+                thumbnailRequest.cancel()
+                b.thumb.setTag(R.id.thumb, null)
+            }
         }
+    }
+
+    override fun onDestroyView() {
+        sortGeneration++
+        sortJob?.cancel()
+        sortJob = null
+        _vb = null
+        super.onDestroyView()
     }
 }
 
