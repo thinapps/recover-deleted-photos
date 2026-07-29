@@ -277,7 +277,7 @@
 
 ### 0.17.3
 - resolved (further) toolbar icon visibility issues in both light and dark modes
-- restructured `themes.xml` to use Material 3 toolbar overlays in both light and dark themes
+- restructured `themes.xml` to use Material 3 toolbar overlays in both light and dark modes
 - applied unified `toolbarStyle` reference for proper tint and contrast across all themes
 - removed redundant color attributes from `activity_main.xml` to rely fully on theme-driven styling
 
@@ -421,7 +421,7 @@
 
 ### 0.14.8
 - replaced menu icon with Material view list icon and removed hardcoded fill colors
-- added md_surface_variant (#F5F5F5) in `colors.xml`
+- added md_surface_variant (#F5F5F5) in colors.xml for sort bar background
 - adjusted sort bar padding and height
 
 ### 0.14.7
@@ -638,7 +638,7 @@
 ### 0.2.0
 - first signed release (AAB)
 - updated package name to `top.thinapps.recoverdeletedphotos`
-- improved MainActivity to center text and use app name string
+- improved MainActivity to center text and use name string
 - optimized resource and theme files (including launcher icon background)
 - optimized GitHub Action workflow for signed releases
 - removed unnecessary Gradle wrapper files from the repo
