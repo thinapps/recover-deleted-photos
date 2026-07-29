@@ -104,6 +104,7 @@
     <string name="recovered_permission_required">Permission required to view recovered files.</string>
     <string name="recovered_loading">Loading recovered files...</string>
     <string name="recovered_empty">No recovered files found.</string>
+    <string name="recovered_load_failed">Unable to load recovered files. Please try again.</string>
     <string name="recovered_open_failed">Unable to open this file.</string>
 
     <!-- recovered audio viewer -->
