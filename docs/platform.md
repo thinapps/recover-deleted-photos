@@ -19,6 +19,12 @@ Recover Deleted Photos is aligned with the current Android 16 build and runtime 
 
 The release workflow installs the Android 36 platform, builds a signed release bundle, verifies its signature, and names the artifact from the app version.
 
+## Repository workflow
+
+The repository is maintained through direct GitHub edits, and release builds run on fresh GitHub Actions runners. A root `.gitignore` is intentionally unnecessary for the current workflow because local Git checkouts, Android Studio, and local Gradle builds are not used, so local IDE settings, build outputs, keystores, and machine-specific files are not generated in the repository.
+
+A `.gitignore` should be added if local development is introduced later.
+
 ## UI resources
 
 App-owned layout dimensions, component sizes, spacing, shape measurements, elevations, touch targets, and explicit text sizes are centralized in `app/src/main/res/values/dimens.xml`.
