@@ -4,7 +4,6 @@
 
 ### 1.3.6
 - moved Results sorting off the main thread and prevented stale sort requests from replacing newer orders
-- cancelled row-scoped video-thumbnail fallbacks on rebind or recycle and connected provider work to coroutine cancellation
 
 ### 1.3.5
 - returned restored Results screens to Home with a clear message when temporary scan data is no longer available
