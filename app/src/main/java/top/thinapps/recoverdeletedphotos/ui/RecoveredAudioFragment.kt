@@ -51,6 +51,11 @@ class RecoveredAudioFragment : Fragment() {
     private lateinit var adapter: RecoveredAudioAdapter
     private var loadJob: Job? = null
 
+    private data class LoadResult(
+        val items: List<MediaItem>,
+        val failed: Boolean
+    )
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -95,14 +100,16 @@ class RecoveredAudioFragment : Fragment() {
         binding.stateMessage.text = getString(R.string.recovered_loading)
 
         loadJob = viewLifecycleOwner.lifecycleScope.launch {
-            val list = withContext(Dispatchers.IO) { loadItems(resolver) }
+            val result = withContext(Dispatchers.IO) { loadItems(resolver) }
 
             val currentBinding = _vb ?: return@launch
-            if (list.isEmpty()) {
-                currentBinding.stateMessage.text = getString(R.string.recovered_audio_empty)
+            if (result.items.isEmpty()) {
+                currentBinding.stateMessage.text = getString(
+                    if (result.failed) R.string.recovered_load_failed else R.string.recovered_audio_empty
+                )
             } else {
                 currentBinding.stateMessage.isVisible = false
-                adapter.submit(list)
+                adapter.submit(result.items)
             }
         }
     }
@@ -119,9 +126,10 @@ class RecoveredAudioFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private suspend fun loadItems(resolver: ContentResolver): List<MediaItem> {
+    private suspend fun loadItems(resolver: ContentResolver): LoadResult {
         val out = mutableListOf<MediaItem>()
         val collection: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        var failed = false
 
         val projection = arrayOf(
             MediaStore.MediaColumns._ID,
@@ -132,57 +140,66 @@ class RecoveredAudioFragment : Fragment() {
         )
 
         try {
-            queryCancellable(
+            val cursor = queryCancellable(
                 resolver = resolver,
                 collection = collection,
                 projection = projection,
                 selection = "${MediaStore.MediaColumns.RELATIVE_PATH} IN (?, ?)",
                 selectionArgs = arrayOf("Music/Recovered", "Music/Recovered/"),
                 sortOrder = "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.MediaColumns._ID} DESC"
-            )?.use { c ->
-                val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-                val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
-                val sizeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
-                val dateIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
-                val mimeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+            )
+            if (cursor == null) {
+                failed = true
+            } else {
+                cursor.use { c ->
+                    val idIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                    val nameIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                    val sizeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
+                    val dateIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
+                    val mimeIdx = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
 
-                while (c.moveToNext()) {
-                    coroutineContext.ensureActive()
+                    while (c.moveToNext()) {
+                        coroutineContext.ensureActive()
 
-                    val id = c.getLong(idIdx)
-                    val name = c.getString(nameIdx) ?: "Unnamed"
-                    val size = c.getLong(sizeIdx)
-                    val date = c.getLong(dateIdx)
-                    val mime = c.getString(mimeIdx) ?: ""
-                    val uri = ContentUris.withAppendedId(collection, id)
+                        val id = c.getLong(idIdx)
+                        val name = c.getString(nameIdx) ?: "Unnamed"
+                        val size = c.getLong(sizeIdx)
+                        val date = c.getLong(dateIdx)
+                        val mime = c.getString(mimeIdx) ?: ""
+                        val uri = ContentUris.withAppendedId(collection, id)
 
-                    val item = MediaItem(
-                        id = id,
-                        uri = uri,
-                        displayName = name,
-                        sizeBytes = size,
-                        dateAddedSec = date,
-                        origin = MediaItem.Origin.NORMAL,
-                        isProbablyVideo = false,
-                        mimeType = mime
-                    )
+                        val item = MediaItem(
+                            id = id,
+                            uri = uri,
+                            displayName = name,
+                            sizeBytes = size,
+                            dateAddedSec = date,
+                            origin = MediaItem.Origin.NORMAL,
+                            isProbablyVideo = false,
+                            mimeType = mime
+                        )
 
-                    out += item
+                        out += item
+                    }
                 }
             }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: OperationCanceledException) {
             coroutineContext.ensureActive()
+            failed = true
         } catch (_: SecurityException) {
-            // permission can change while the viewer is loading; return no items
+            // permission can change while the viewer is loading
+            failed = true
         } catch (_: IllegalArgumentException) {
-            // return no items for unsupported or inaccessible provider queries
+            // unsupported or inaccessible provider query
+            failed = true
         } catch (_: RuntimeException) {
-            // return no items for unexpected device-specific MediaStore failures
+            // unexpected provider failure from a device-specific MediaStore implementation
+            failed = true
         }
 
-        return out
+        return LoadResult(out, failed)
     }
 
     // ties a blocking provider query to coroutine cancellation
