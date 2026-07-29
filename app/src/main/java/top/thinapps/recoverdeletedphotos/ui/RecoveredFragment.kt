@@ -6,7 +6,6 @@ import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -64,21 +63,6 @@ class RecoveredFragment : Fragment() {
         val items: List<MediaItem>,
         val failed: Boolean
     )
-
-    // row-owned fallback work for video thumbnails
-    private class ThumbnailRequest {
-        var job: Job? = null
-        var generation: Long = 0L
-            private set
-
-        fun cancel() {
-            generation++
-            job?.cancel()
-            job = null
-        }
-
-        fun isCurrent(token: Long): Boolean = generation == token
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -325,16 +309,10 @@ class RecoveredFragment : Fragment() {
         return String.format(Locale.US, "%.1f %s", scaled, units[group])
     }
 
-    // load video frames with a row-owned, cancellation-aware provider fallback
-    private fun loadVideoThumbWithFallback(
-        imageView: ImageView,
-        uri: Uri,
-        mime: String?,
-        request: ThumbnailRequest
-    ) {
-        val token = request.generation
-        imageView.setTag(R.id.thumb, uri)
-        imageView.load(uri) {
+    // load video frames with a graceful fallback
+    private fun loadVideoThumbWithFallback(iv: ImageView, uri: Uri, mime: String?) {
+        iv.setTag(R.id.thumb, uri)
+        iv.load(uri) {
             crossfade(true)
             videoFrameMillis(0)
             allowHardware(false)
@@ -346,45 +324,29 @@ class RecoveredFragment : Fragment() {
                         .build()
                 )
             }
-            size(ViewSizeResolver(imageView))
+            size(ViewSizeResolver(iv))
             listener(
                 onError = { _, _ ->
-                    if (
-                        imageView.getTag(R.id.thumb) != uri ||
-                        !request.isCurrent(token)
-                    ) {
-                        return@listener
-                    }
-
-                    val owner = imageView.findViewTreeLifecycleOwner() ?: return@listener
-                    request.job = owner.lifecycleScope.launch(Dispatchers.IO) {
+                    if (iv.getTag(R.id.thumb) != uri) return@listener
+                    val owner = iv.findViewTreeLifecycleOwner() ?: return@listener
+                    owner.lifecycleScope.launch(Dispatchers.IO) {
                         try {
-                            val width = imageView.width.coerceAtLeast(200)
-                            val height = imageView.height.coerceAtLeast(200)
-                            val thumbnail = loadThumbnailCancellable(
-                                imageView,
+                            val w = iv.width.coerceAtLeast(200)
+                            val h = iv.height.coerceAtLeast(200)
+                            val thumb = iv.context.contentResolver.loadThumbnail(
                                 uri,
-                                Size(width, height)
+                                Size(w, h),
+                                null
                             )
                             withContext(Dispatchers.Main) {
-                                if (
-                                    imageView.getTag(R.id.thumb) == uri &&
-                                    request.isCurrent(token)
-                                ) {
-                                    imageView.setImageBitmap(thumbnail)
-                                }
+                                if (iv.getTag(R.id.thumb) == uri) iv.setImageBitmap(thumb)
                             }
                         } catch (cancelled: CancellationException) {
                             throw cancelled
                         } catch (_: Throwable) {
                             withContext(Dispatchers.Main) {
-                                if (
-                                    imageView.getTag(R.id.thumb) != uri ||
-                                    !request.isCurrent(token)
-                                ) {
-                                    return@withContext
-                                }
-                                imageView.load(uri) {
+                                if (iv.getTag(R.id.thumb) != uri) return@withContext
+                                iv.load(uri) {
                                     crossfade(true)
                                     videoFrameMillis(1_000)
                                     allowHardware(false)
@@ -396,7 +358,7 @@ class RecoveredFragment : Fragment() {
                                                 .build()
                                         )
                                     }
-                                    size(ViewSizeResolver(imageView))
+                                    size(ViewSizeResolver(iv))
                                 }
                             }
                         }
@@ -406,30 +368,8 @@ class RecoveredFragment : Fragment() {
         }
     }
 
-    private suspend fun loadThumbnailCancellable(
-        imageView: ImageView,
-        uri: Uri,
-        size: Size
-    ): Bitmap = suspendCancellableCoroutine { continuation ->
-        val signal = CancellationSignal()
-        continuation.invokeOnCancellation { signal.cancel() }
-
-        try {
-            val bitmap = imageView.context.contentResolver.loadThumbnail(uri, size, signal)
-            if (continuation.isActive) continuation.resume(bitmap)
-        } catch (error: Throwable) {
-            if (continuation.isActive) continuation.resumeWithException(error)
-        }
-    }
-
     // simple audio vs image/video styling
-    private fun applyMediaStyling(
-        binding: ItemMediaBinding,
-        item: MediaItem,
-        thumbnailRequest: ThumbnailRequest
-    ) {
-        thumbnailRequest.cancel()
-
+    private fun applyMediaStyling(binding: ItemMediaBinding, item: MediaItem) {
         val mt = item.mimeType.takeIf { it.isNotBlank() }
         val isVideo = item.isProbablyVideo || (mt?.startsWith("video/") == true)
         val isAudio = !isVideo && (mt?.startsWith("audio/") == true)
@@ -449,7 +389,7 @@ class RecoveredFragment : Fragment() {
         binding.thumb.setTag(R.id.thumb, item.uri)
 
         if (isVideo) {
-            loadVideoThumbWithFallback(binding.thumb, item.uri, mt, thumbnailRequest)
+            loadVideoThumbWithFallback(binding.thumb, item.uri, mt)
         } else {
             binding.thumb.load(item.uri) {
                 crossfade(true)
@@ -485,16 +425,9 @@ class RecoveredFragment : Fragment() {
         inner class VH(val binding: ItemMediaBinding) :
             RecyclerView.ViewHolder(binding.root) {
 
-            private val thumbnailRequest = ThumbnailRequest()
-
             fun bind(item: MediaItem) {
-                applyMediaStyling(binding, item, thumbnailRequest)
+                applyMediaStyling(binding, item)
                 binding.root.setOnClickListener { click(item) }
-            }
-
-            fun recycle() {
-                thumbnailRequest.cancel()
-                binding.thumb.setTag(R.id.thumb, null)
             }
         }
 
@@ -508,11 +441,6 @@ class RecoveredFragment : Fragment() {
 
         override fun onBindViewHolder(holder: VH, position: Int) {
             holder.bind(data[position])
-        }
-
-        override fun onViewRecycled(holder: VH) {
-            holder.recycle()
-            super.onViewRecycled(holder)
         }
     }
 
