@@ -35,6 +35,12 @@ Layouts, styles, shape drawables, and vector intrinsic sizes reference these nam
 
 Scan results remain in an activity-scoped `ScanViewModel` across normal configuration changes but are not serialized or persisted. If Android restores the Results destination after process death and the temporary result list is no longer available, the app returns to Home and explains that the scan must be run again instead of showing a misleading empty Results screen.
 
+## Results performance
+
+Results ordering runs on `Dispatchers.Default` instead of the main thread. A newly requested sort cancels the previous coroutine, and a generation guard prevents an older completed sort from replacing the latest selected order.
+
+Video thumbnail provider fallbacks are owned by individual Results and Recovered Photos/Videos rows. Rebinding or recycling a row cancels its previous fallback job, while coroutine cancellation is connected to the provider `CancellationSignal` so obsolete `loadThumbnail()` work can stop promptly. URI and request-generation checks still prevent stale thumbnails from updating reused rows.
+
 ## Interaction feedback
 
 The app requests standard Android haptic feedback for intentional app-owned actions. These include the Home screen scan and recovered-media buttons; Scan cancellation, permission, retry, Go Home, and app-bar Back actions; Results selection, recovery, layout changes, recovery outcomes, and app-bar Back; recovered-viewer app-bar Back; failed recovered-file opening; and opening the Privacy Policy dialog.
