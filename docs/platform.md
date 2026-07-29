@@ -31,6 +31,10 @@ App-owned layout dimensions, component sizes, spacing, shape measurements, eleva
 
 Layouts, styles, shape drawables, and vector intrinsic sizes reference these named resources instead of repeating hardcoded `dp` and `sp` values. Numeric values that are not Android dimensions, such as vector viewport coordinates, path data, ratios, weights, and alpha values, remain inline.
 
+## Transient scan state
+
+Scan results remain in an activity-scoped `ScanViewModel` across normal configuration changes but are not serialized or persisted. If Android restores the Results destination after process death and the temporary result list is no longer available, the app returns to Home and explains that the scan must be run again instead of showing a misleading empty Results screen.
+
 ## Interaction feedback
 
 The app requests standard Android haptic feedback for intentional app-owned actions. These include the Home screen scan and recovered-media buttons; Scan cancellation, permission, retry, Go Home, and app-bar Back actions; Results selection, recovery, layout changes, recovery outcomes, and app-bar Back; recovered-viewer app-bar Back; failed recovered-file opening; and opening the Privacy Policy dialog.
