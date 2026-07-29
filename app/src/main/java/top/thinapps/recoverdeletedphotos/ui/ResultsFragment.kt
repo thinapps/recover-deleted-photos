@@ -23,6 +23,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -379,7 +380,8 @@ class ResultsFragment : Fragment() {
                     return@listener
                 }
 
-                request.job = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                val owner = imageView.findViewTreeLifecycleOwner() ?: return@listener
+                request.job = owner.lifecycleScope.launch(Dispatchers.IO) {
                     try {
                         val width = imageView.width.coerceAtLeast(200)
                         val height = imageView.height.coerceAtLeast(200)
