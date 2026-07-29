@@ -638,7 +638,7 @@
 ### 0.2.0
 - first signed release (AAB)
 - updated package name to `top.thinapps.recoverdeletedphotos`
-- improved MainActivity to center text and use name string
+- improved MainActivity to center text and use app name string
 - optimized resource and theme files (including launcher icon background)
 - optimized GitHub Action workflow for signed releases
 - removed unnecessary Gradle wrapper files from the repo
