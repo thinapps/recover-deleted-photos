@@ -8,9 +8,6 @@
     <!-- bright blue base remains same for brand consistency -->
     <color name="md_seed">#2962FF</color>
 
-    <!-- primary vivid blue for key brand elements -->
-    <color name="md_primary">#2962FF</color>
-
     <!-- secondary soft blue accent color -->
     <color name="md_secondary">#6C7BFF</color>
 
@@ -29,12 +26,6 @@
     <!-- slightly lighter gray variant for panels and cards -->
     <color name="md_surface_variant">#1E1E1E</color>
 
-    <!-- toolbar background dark gray -->
-    <color name="md_toolbar_background">#121212</color>
-
-    <!-- toolbar icons and text white for contrast -->
-    <color name="md_toolbar_tint">#FFFFFF</color>
-
     <!-- background for adaptive app icons (unchanged) -->
     <color name="ic_launcher_background">#1976D2</color>
 
@@ -44,29 +35,16 @@
     <!-- softer red used for trash or deleted item badges -->
     <color name="badge_trash">#EF5350</color>
 
-    <!-- bright blue button background for recover button -->
-    <color name="recover_button_enabled_bg">#1976D2</color>
-
     <!-- darker gray background for disabled recover button -->
     <color name="recover_button_disabled_bg">#424242</color>
 
     <!-- white text color for recover button labels -->
     <color name="recover_button_text">#FFFFFF</color>
 
-    <!-- vivid neon green for found file count on dark surfaces -->
-    <color name="md_green_A400">#76FF03</color>
-
-    <!-- bright neon green for scan success glow -->
-    <color name="md_green_A200">#B2FF59</color>
-
     <!-- deep blue used for outer pulse gradient -->
     <color name="md_blue_50">#0D47A1</color>
 
     <!-- lighter blue used for inner pulse gradient -->
     <color name="md_blue_200">#42A5F5</color>
-    
-    <!-- pure white icons for grid/list toggle and toolbar -->
-    <color name="icon_grid">#FFFFFF</color>
-    <color name="icon_list">#FFFFFF</color>
 
 </resources>
