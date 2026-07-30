@@ -1,14 +1,11 @@
 package top.thinapps.recoverdeletedphotos.model
 
 import android.net.Uri
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// data class for scanned media, made parcelable for fragment argument passing
-@Parcelize
+// data class for media exposed by a scan or recovered-file query
 data class MediaItem(
     val id: Long,
     val uri: Uri,
@@ -19,7 +16,7 @@ data class MediaItem(
     val origin: Origin = Origin.NORMAL,
     val isProbablyVideo: Boolean = false,
     val mimeType: String = ""
-) : Parcelable {
+) {
 
     // identifies whether media comes from normal storage or the system trash
     enum class Origin { NORMAL, TRASHED }
