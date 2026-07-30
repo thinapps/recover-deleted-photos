@@ -2,7 +2,6 @@
 <!-- combined home screen: icon + captions + filter card + action button -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -43,17 +42,6 @@
             android:layout_marginTop="@dimen/space_8"
             android:text="@string/home_subtitle"
             android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-        <!-- message shown for unsupported android versions -->
-        <TextView
-            android:id="@+id/stateMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_24"
-            android:visibility="gone"
-            android:textAlignment="center"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            tools:text="@string/android_13_required_msg" />
 
         <!-- card containing type selection -->
         <com.google.android.material.card.MaterialCardView
