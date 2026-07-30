@@ -58,18 +58,3 @@ Important Recovery Limitations
 Recover Deleted Photos is not a forensic disk-recovery tool. It can inspect only media records and files that Android makes available through MediaStore. It cannot restore files that have been overwritten, are inaccessible to Android, or have been permanently deleted from storage.
 
 Use Recover Deleted Photos for a private, transparent, and fully offline way to find and copy media that may still be recoverable on your Android device.
-
-## What's new — 1.4.1
-
-Improved the Home screen on short, landscape, and enlarged displays. Removed unused app resources and build support.
-
-## Support
-
-support@thinapps.top
-
-## Listing rules
-
-- Keep claims consistent with the in-app privacy policy and `docs/scanning.md`.
-- Do not describe the app as performing a deep, forensic, filesystem, cache, or hidden-file scan.
-- Do not promise recovery of overwritten, inaccessible, or permanently deleted files.
-- Keep the Play Console Data safety answers aligned with the app's local-only implementation and declared permissions.
