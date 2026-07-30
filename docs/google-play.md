@@ -22,16 +22,15 @@ Scanning and recovery happen entirely on your device. The app has no Internet pe
 
 Find and recover media
 
-Scan the selected media category without uploading files or relying on a cloud service. Results may include both regular and trashed media when Android makes those records available.
-
 - Photos: Find camera photos, screenshots, downloaded images, and other image files.
 - Videos: Find video clips, recordings, and other video files.
 - Audio: Find music, voice recordings, and other audio files.
 - System trash: Include trashed media when Android still exposes those records.
-- Flexible results: Switch between a visual thumbnail grid and a detailed list.
+- Result details: Review thumbnails, file names, dates, sizes, and trash status in grid or list view.
 - Sorting: Organize results by date, file size, or file name.
 - Multi-select recovery: Select and recover multiple files together.
-- Recovery folders: Save photos and videos to Pictures/Recovered and audio files to Music/Recovered.
+- Recovery folders: Save photos and videos to Pictures/Recovered and audio files to Music/Recovered. These folders are excluded from later scans.
+- Recovered files: Browse recovered photos, videos, and audio inside the app and tap a file to open it with a compatible app.
 
 Local recovery and limitations
 
