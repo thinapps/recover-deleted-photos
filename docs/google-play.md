@@ -16,45 +16,25 @@ Find and recover photos, videos, and audio files. 100% offline and private.
 
 ## Full description
 
-Recover Deleted Photos: Your Safe, Offline Media Recovery Tool
+Recover Deleted Photos by ThinApps helps you find and recover photos, videos, and audio files that Android still makes available through MediaStore. Choose a media type, scan the records available on your device, review the results, and create new copies of the files you want to keep.
 
-Recover Deleted Photos by ThinApps helps you find photos, videos, and audio files that Android still makes available through MediaStore. The app scans the selected media category locally and lets you copy recoverable files into dedicated folders on your device.
+Scanning and recovery happen entirely on your device. The app has no Internet permission, collects no personal data, includes no advertising or analytics, and is fully open source.
 
-Why Choose Recover Deleted Photos?
+Find and recover media
 
-Our commitment is to privacy, transparency, and simple on-device processing.
+Scan the selected media category without uploading files or relying on a cloud service. Results may include both regular and trashed media when Android makes those records available.
 
-- 100% Offline & Private: The app never connects to the internet. File scanning, analysis, and recovery happen exclusively on your device.
-- Zero Data Collection: We collect no personal information, device identifiers, usage data, or media files. Your files remain yours.
-- Open Source: The complete source code is publicly available for inspection, feedback, and independent verification.
+- Photos: Find camera photos, screenshots, downloaded images, and other image files.
+- Videos: Find video clips, recordings, and other video files.
+- Audio: Find music, voice recordings, and other audio files.
+- System trash: Include trashed media when Android still exposes those records.
+- Flexible results: Switch between a visual thumbnail grid and a detailed list.
+- Sorting: Organize results by date, file size, or file name.
+- Multi-select recovery: Select and recover multiple files together.
+- Recovery folders: Save photos and videos to Pictures/Recovered and audio files to Music/Recovered.
 
-Core Features
+Local recovery and limitations
 
-Media Scanning and Recovery:
+Recovering a file creates a new copy in a dedicated folder on your device. Scan results remain temporary while you use the app, and Android cloud backup is disabled.
 
-- Photos: Find images, screenshots, and camera photos that Android still exposes.
-- Videos: Find video clips and recordings available through Android MediaStore.
-- Audio: Scan for music, voice recordings, and other audio files exposed by Android.
-- System Trash: Results can include trashed media when Android makes those records available.
-
-Smart Results Management:
-
-- Advanced Sorting: Organize results by date, file size, or name.
-- Flexible Viewing: Switch between a visual grid for thumbnails and a detailed list for file information.
-- Multi-Select Recovery: Select multiple results and recover them together.
-- Modern Android Support: Designed for Android 13 and later using separate photo, video, and audio permissions.
-
-How to Recover Files
-
-1. Select Type: Choose Photos, Videos, or Audio.
-2. Scan: The app scans the selected media records available through Android MediaStore.
-3. Select: Choose the files you want to recover.
-4. Recover: The app creates new copies in dedicated folders on your device:
-   - Photos and videos are saved to `Pictures/Recovered`.
-   - Audio files are saved to `Music/Recovered`.
-
-Important Recovery Limitations
-
-Recover Deleted Photos is not a forensic disk-recovery tool. It can inspect only media records and files that Android makes available through MediaStore. It cannot restore files that have been overwritten, are inaccessible to Android, or have been permanently deleted from storage.
-
-Use Recover Deleted Photos for a private, transparent, and fully offline way to find and copy media that may still be recoverable on your Android device.
+Recover Deleted Photos is not a forensic disk-recovery tool. It can inspect only media records and files that Android still exposes through MediaStore. It cannot restore files that have been overwritten, are inaccessible to Android, or have been permanently deleted from storage.
