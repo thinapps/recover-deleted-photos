@@ -6,11 +6,6 @@
     <string name="privacy_policy_body">Effective July 22, 2026.\n\nRecover Deleted Photos is developed by ThinApps.\n\nRecover Deleted Photos uses the media access permissions you grant to scan photos, videos, or audio that Android makes available through MediaStore. The app reads local media information such as file names, media types, sizes, dates, relative storage folder paths, and trash status so it can display scan results. Media files, thumbnails, and scan information are processed on your device and are not uploaded to ThinApps. On Android versions that allow selected photo or video access, the app can scan only the media Android makes available. Recover Deleted Photos scans media records that Android makes available and cannot perform forensic recovery of overwritten, inaccessible, or permanently deleted files.\n\nScan results are held temporarily in app memory while you use the scan and results screens. The app does not keep a scan history, create an online profile, or store scan results in cloud storage.\n\nWhen you choose Recover, the app reads the selected source file and writes a new copy through Android MediaStore to Pictures/Recovered for photos and videos or Music/Recovered for audio. Recovered copies remain in shared storage on your device until you delete them. Because recovered copies are saved in shared media storage, they may become visible to other apps with media access and may be backed up or synchronized by services configured on your device. The app excludes these recovery folders from later scans.\n\nThe Recovered Photos/Videos and Recovered Audio screens read those recovery folders locally. Recover Deleted Photos shares a recovered file with another app only when you tap the file to open it. Android then passes its content address, media type, and temporary read access to a compatible app selected by you or Android. The receiving app may process, store, transmit, or back up that file according to its own privacy practices.\n\nRecover Deleted Photos has no Internet permission, accounts, advertising, analytics, or cloud service operated by ThinApps. ThinApps does not receive, sell, or share your media files or scan information. Android cloud backup is disabled for this app.\n\nFor privacy questions, contact ThinApps at support@thinapps.top.</string>
     <string name="action_close">Close</string>
 
-    <!-- filters -->
-    <string name="filter_photos">Photos</string>
-    <string name="filter_videos">Videos</string>
-    <string name="filter_audio">Audio</string>
-
     <!-- media type selector -->
     <string name="filter_type_label">File type to scan:</string>
     <string name="type_photos">Photos</string>
@@ -26,16 +21,11 @@
 
     <!-- scan screen -->
     <string name="scan_title">Scanning</string>
-    <string name="percent_start">0%</string>
-    <string name="percent_format">%1$d%%</string>
-    <string name="found_count_start">Found 0 files</string>
-    <string name="found_count">Found %1$d files</string>
     <string name="total_files_label">Total files scanned</string>
     <string name="total_photos_label">Total photos found:</string>
     <string name="total_videos_label">Total videos found:</string>
     <string name="total_audio_label">Total audio files found:</string>
     <string name="total_files_count">%1$,d</string>
-    <string name="perms_denied">Storage permission is required to scan your device</string>
 
     <string name="cancel">Cancel</string>
     <string name="cancelling">Cancelling...</string>
@@ -62,9 +52,6 @@
     <!-- permission/empty/error states -->
     <string name="perm_required_title">Permission needed</string>
     <string name="perm_required_msg">Allow media access so we can scan your device.</string>
-    <string name="perm_grant">Grant</string>
-    <string name="open_settings">Open Settings</string>
-    <string name="action_settings">Settings</string>
     <string name="action_grant_settings">Grant Access in Settings</string>
 
     <string name="perm_open_settings">Open app settings</string>
@@ -76,7 +63,6 @@
     <string name="no_media_title">Nothing found</string>
     <string name="no_media_msg">No media was found for the selected file type.</string>
 
-    <string name="retry">Retry</string>
     <string name="go_home">Home</string>
 
     <string name="scan_error_title">Scan error</string>
