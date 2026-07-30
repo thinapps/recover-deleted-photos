@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 1.4.1
+- made the Home screen scroll safely on short, landscape, and enlarged layouts while keeping footer spacing on normal screens
+- removed unused Parcelize support and orphaned string, color, style, and drawable resources
+
 ### 1.4.0
 - raised the minimum supported version to Android 13 to match the app's existing scanning requirement
 - removed the unused legacy storage permission and pre-Android-13 compatibility paths
