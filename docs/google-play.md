@@ -18,7 +18,7 @@ Find and recover photos, videos, and audio files. 100% offline and private.
 
 Recover Deleted Photos by ThinApps helps you find and recover photos, videos, and audio files that may be deleted, trashed, or difficult to locate but are still available through Android MediaStore.
 
-Choose Photos, Videos, or Audio, scan the available records, review detailed results, and create new copies of the files you want to keep. Everything happens privately and entirely offline on your device, with no Internet permission, accounts, advertising, analytics, or data collection. The complete source code is publicly available for inspection and feedback.
+Choose Photos, Videos, or Audio, scan the available records, review detailed results, and create new copies of the files you want to keep. Everything happens privately and entirely offline on your device, with no Internet permission, accounts, advertising, analytics, or data collection.
 
 Find and recover media
 
@@ -37,3 +37,7 @@ Local recovery and limitations
 Recovering a file creates a new copy in a dedicated folder on your device. Scan results remain temporary while you use the app, and Android cloud backup is disabled.
 
 Recover Deleted Photos is not a forensic disk-recovery tool. It can inspect only media records and files that Android still exposes through MediaStore. It cannot restore files that have been overwritten, are inaccessible to Android, or have been permanently deleted from storage.
+
+Open source
+
+Recover Deleted Photos is fully open source. The complete source code is published on GitHub, where anyone can inspect how the app works, review its permissions and privacy behavior, report issues, or suggest improvements.
