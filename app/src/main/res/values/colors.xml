@@ -8,9 +8,6 @@
     <!-- main seed color that defines the generated material color scheme -->
     <color name="md_seed">#2962FF</color>
 
-    <!-- primary vivid blue used for buttons, highlights, and main brand identity -->
-    <color name="md_primary">#2962FF</color>
-
     <!-- secondary soft blue used for accent details and minor UI highlights -->
     <color name="md_secondary">#6C7BFF</color>
 
@@ -29,12 +26,6 @@
     <!-- soft gray background for subtle UI regions like lists and toolbars -->
     <color name="md_surface_variant">#F5F5F5</color>
 
-    <!-- white background color used for the top app bar and toolbar areas -->
-    <color name="md_toolbar_background">#FFFFFF</color>
-
-    <!-- dark icon and text color specifically for the toolbar content -->
-    <color name="md_toolbar_tint">#1C1B1F</color>
-
     <!-- solid medium blue used behind adaptive app icons and launchers -->
     <color name="ic_launcher_background">#1976D2</color>
 
@@ -44,29 +35,16 @@
     <!-- strong red used for destructive elements such as trash or delete badges -->
     <color name="badge_trash">#D93025</color>
 
-    <!-- bright blue background for the enabled primary action (recover) button -->
-    <color name="recover_button_enabled_bg">#1976D2</color>
-
     <!-- muted gray background for the disabled version of the recover button -->
     <color name="recover_button_disabled_bg">#BDBDBD</color>
 
     <!-- pure white text color for all button labels shown on blue backgrounds -->
     <color name="recover_button_text">#FFFFFF</color>
 
-    <!-- vivid green used to emphasize successful actions or final result counts -->
-    <color name="md_green_A400">#76FF03</color>
-
-    <!-- slightly lighter neon green used for soft glow or animation highlights -->
-    <color name="md_green_A200">#B2FF59</color>
-
     <!-- very pale blue used for outer gradients or light pulse backgrounds -->
     <color name="md_blue_50">#E8F0FE</color>
 
     <!-- soft midtone blue used for inner gradient layers or pulse centers -->
     <color name="md_blue_200">#90CAF9</color>
-
-    <!-- dark gray icon color shared by grid/list view toggles and toolbar icons -->
-    <color name="icon_grid">#1C1B1F</color>
-    <color name="icon_list">#1C1B1F</color>
 
 </resources>
