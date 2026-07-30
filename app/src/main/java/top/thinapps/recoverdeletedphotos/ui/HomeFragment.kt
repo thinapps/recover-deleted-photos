@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
-import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
 import android.view.HapticFeedbackConstants
@@ -65,9 +63,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // android 13 feature gate
-    private fun isAndroid13Plus(): Boolean = Build.VERSION.SDK_INT >= TIRAMISU
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -96,15 +91,6 @@ class HomeFragment : Fragment() {
         vb.buttonViewRecoveredAudio.setOnClickListener { button ->
             button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             navigateFromHome(R.id.action_home_to_recovered_audio)
-        }
-
-        // disable scan features on pre android 13
-        if (!isAndroid13Plus()) {
-            vb.startButton.isEnabled = false
-            vb.homeTypeRow.isVisible = false
-            vb.stateMessage.text = getString(R.string.android_13_required_msg)
-            vb.stateMessage.isVisible = true
-            return
         }
 
         // set initial button label
@@ -181,16 +167,10 @@ class HomeFragment : Fragment() {
     }
 
     // returns the permission required for a given media type
-    private fun requiredPerm(type: TypeChoice): String {
-        return if (Build.VERSION.SDK_INT < 33) {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        } else {
-            when (type) {
-                TypeChoice.PHOTOS -> Manifest.permission.READ_MEDIA_IMAGES
-                TypeChoice.VIDEOS -> Manifest.permission.READ_MEDIA_VIDEO
-                TypeChoice.AUDIO -> Manifest.permission.READ_MEDIA_AUDIO
-            }
-        }
+    private fun requiredPerm(type: TypeChoice): String = when (type) {
+        TypeChoice.PHOTOS -> Manifest.permission.READ_MEDIA_IMAGES
+        TypeChoice.VIDEOS -> Manifest.permission.READ_MEDIA_VIDEO
+        TypeChoice.AUDIO -> Manifest.permission.READ_MEDIA_AUDIO
     }
 
     // checks if a permission is already granted
@@ -220,10 +200,10 @@ class HomeFragment : Fragment() {
             nav.navigate(actionId, args)
         } catch (_: IllegalArgumentException) {
             navigating = false
-            if (_vb != null && isAndroid13Plus()) updateButtonText()
+            if (_vb != null) updateButtonText()
         } catch (_: IllegalStateException) {
             navigating = false
-            if (_vb != null && isAndroid13Plus()) updateButtonText()
+            if (_vb != null) updateButtonText()
         }
     }
 
@@ -238,7 +218,7 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         navigating = false
-        if (_vb != null && isAndroid13Plus()) updateButtonText()
+        if (_vb != null) updateButtonText()
     }
 
     override fun onDestroyView() {
