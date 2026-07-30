@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 1.4.0
+- raised the minimum supported version to Android 13 to match the app's existing scanning requirement
+- removed the unused legacy storage permission and pre-Android-13 compatibility paths
+
 ### 1.3.6
 - moved Results sorting off the main thread and prevented stale sort requests from replacing newer orders
 
