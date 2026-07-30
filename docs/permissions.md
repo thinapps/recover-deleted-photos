@@ -1,6 +1,6 @@
 # Permissions
 
-Recover Deleted Photos targets Android 16 while keeping its scanning interface limited to Android 13 and later.
+Recover Deleted Photos targets Android 16 and supports Android 13 and later.
 
 ## Declared permissions
 
@@ -9,11 +9,8 @@ The manifest declares:
 - `READ_MEDIA_IMAGES` for photos on Android 13+
 - `READ_MEDIA_VIDEO` for videos on Android 13+
 - `READ_MEDIA_AUDIO` for audio on Android 13+
-- `READ_EXTERNAL_STORAGE` with `maxSdkVersion="32"` as a legacy declaration
 
 The app does not currently declare `READ_MEDIA_VISUAL_USER_SELECTED` for Android 14+ Selected Photos Access.
-
-The Home and Scan screens block scanning below Android 13, so the legacy permission is not currently used by the active scan flow.
 
 ## In-app privacy policy
 
@@ -97,7 +94,7 @@ Both viewers still show a permission-required message instead of launching a per
 
 ## Recovery writes
 
-Recovery copies are inserted through MediaStore into `Pictures/Recovered` or `Music/Recovered`. On supported Android versions, creating these app-owned entries does not require a separate broad write-storage permission. Reading the source still depends on the relevant media permission and URI access remaining valid.
+Recovery copies are inserted through MediaStore into `Pictures/Recovered` or `Music/Recovered`. Creating these app-owned entries does not require a separate broad write-storage permission. Reading the source still depends on the relevant media permission and URI access remaining valid.
 
 Each destination remains pending until its persisted size is positive and matches the number of bytes streamed into it. Mismatched, unverifiable, or empty copies are deleted instead of being published or counted as recovered.
 
