@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.OperationCanceledException
@@ -130,23 +129,11 @@ class RecoveredFragment : Fragment() {
         }
     }
 
-    private fun hasImagePermission(): Boolean {
-        val perm = if (Build.VERSION.SDK_INT < 33) {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        } else {
-            Manifest.permission.READ_MEDIA_IMAGES
-        }
-        return hasPermission(perm)
-    }
+    private fun hasImagePermission(): Boolean =
+        hasPermission(Manifest.permission.READ_MEDIA_IMAGES)
 
-    private fun hasVideoPermission(): Boolean {
-        val perm = if (Build.VERSION.SDK_INT < 33) {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        } else {
-            Manifest.permission.READ_MEDIA_VIDEO
-        }
-        return hasPermission(perm)
-    }
+    private fun hasVideoPermission(): Boolean =
+        hasPermission(Manifest.permission.READ_MEDIA_VIDEO)
 
     private fun hasPermission(perm: String): Boolean {
         return ContextCompat.checkSelfPermission(
