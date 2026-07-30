@@ -96,7 +96,7 @@ class MediaScanner(private val context: Context) {
             var done = false
             while (!done && coroutineContext.isActive) {
                 val (sel, selArgs) = selectionFor(q)
-                val consumed = resolverQueryCancellable(
+                val cursor = resolverQueryCancellable(
                     uri = q.uri,
                     projection = projection,
                     sortCol = q.sortCol(),
@@ -104,14 +104,15 @@ class MediaScanner(private val context: Context) {
                     selectionArgs = selArgs,
                     limit = PAGE_SIZE,
                     offset = offset
-                )?.use { c ->
+                ) ?: throw IllegalStateException("MediaStore query returned a null cursor")
+                val consumed = cursor.use { c ->
                     consumeCursor(c, q, seenUris, out) { inc ->
                         found += inc
                         maybeEmitProgress(onProgress, found, ::nanoNow, lastEmit).also {
                             lastEmit = it
                         }
                     }
-                } ?: 0
+                }
                 if (consumed < PAGE_SIZE) {
                     done = true
                 } else {
