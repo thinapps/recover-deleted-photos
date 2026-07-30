@@ -3,7 +3,6 @@ package top.thinapps.recoverdeletedphotos.scan
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.provider.MediaStore
@@ -92,45 +91,19 @@ class MediaScanner(private val context: Context) {
 
             val projection = buildProjection(q)
 
-            // page results on api 30+ to reduce cursor memory
-            if (Build.VERSION.SDK_INT >= 30) {
-                var offset = 0
-                var done = false
-                while (!done && coroutineContext.isActive) {
-                    val (sel, selArgs) = selectionFor(q)
-                    val consumed = resolverQueryCancellable(
-                        uri = q.uri,
-                        projection = projection,
-                        sortCol = q.sortCol(),
-                        selection = sel,
-                        selectionArgs = selArgs,
-                        limit = PAGE_SIZE,
-                        offset = offset
-                    )?.use { c ->
-                        consumeCursor(c, q, seenUris, out) { inc ->
-                            found += inc
-                            maybeEmitProgress(onProgress, found, ::nanoNow, lastEmit).also {
-                                lastEmit = it
-                            }
-                        }
-                    } ?: 0
-                    if (consumed < PAGE_SIZE) {
-                        done = true
-                    } else {
-                        offset += PAGE_SIZE
-                    }
-                }
-            } else {
-                // legacy non-paged path
+            // page results to reduce cursor memory
+            var offset = 0
+            var done = false
+            while (!done && coroutineContext.isActive) {
                 val (sel, selArgs) = selectionFor(q)
-                resolverQueryCancellable(
+                val consumed = resolverQueryCancellable(
                     uri = q.uri,
                     projection = projection,
                     sortCol = q.sortCol(),
                     selection = sel,
                     selectionArgs = selArgs,
-                    limit = null,
-                    offset = null
+                    limit = PAGE_SIZE,
+                    offset = offset
                 )?.use { c ->
                     consumeCursor(c, q, seenUris, out) { inc ->
                         found += inc
@@ -138,6 +111,11 @@ class MediaScanner(private val context: Context) {
                             lastEmit = it
                         }
                     }
+                } ?: 0
+                if (consumed < PAGE_SIZE) {
+                    done = true
+                } else {
+                    offset += PAGE_SIZE
                 }
             }
         }
@@ -152,17 +130,11 @@ class MediaScanner(private val context: Context) {
         var sel = SEL_BASE
         val args = SEL_ARGS_BASE.toMutableList()
 
-        if (Build.VERSION.SDK_INT == 29) {
-            sel += " AND ${MediaStore.MediaColumns.IS_PENDING} = 0"
-        }
-
-        if (Build.VERSION.SDK_INT >= 29) {
-            sel +=
-                " AND (${MediaStore.MediaColumns.RELATIVE_PATH} IS NULL OR " +
-                    "${MediaStore.MediaColumns.RELATIVE_PATH} NOT IN (?, ?))"
-            args += q.excludedPath
-            args += "${q.excludedPath}/"
-        }
+        sel +=
+            " AND (${MediaStore.MediaColumns.RELATIVE_PATH} IS NULL OR " +
+                "${MediaStore.MediaColumns.RELATIVE_PATH} NOT IN (?, ?))"
+        args += q.excludedPath
+        args += "${q.excludedPath}/"
 
         return sel to args.toTypedArray()
     }
@@ -171,8 +143,8 @@ class MediaScanner(private val context: Context) {
     private fun buildProjection(q: QuerySpec): Array<String> {
         val base = mutableListOf(q.id, q.name, q.size, q.datePrimary)
         if (q.dateTaken != null) base += q.dateTaken
-        if (Build.VERSION.SDK_INT >= 29) base += MediaStore.MediaColumns.RELATIVE_PATH
-        if (Build.VERSION.SDK_INT >= 30) base += MediaStore.MediaColumns.IS_TRASHED
+        base += MediaStore.MediaColumns.RELATIVE_PATH
+        base += MediaStore.MediaColumns.IS_TRASHED
         base += MediaStore.MediaColumns.MIME_TYPE
         return base.toTypedArray()
     }
@@ -211,7 +183,7 @@ class MediaScanner(private val context: Context) {
         }
     }
 
-    // unified resolver query for both modern and legacy apis
+    // resolver query using bundle-based options supported by the minimum sdk
     private fun resolverQuery(
         uri: Uri,
         projection: Array<String>,
@@ -221,7 +193,7 @@ class MediaScanner(private val context: Context) {
         limit: Int?,
         offset: Int?,
         signal: CancellationSignal?
-    ) = if (Build.VERSION.SDK_INT >= 26) {
+    ): android.database.Cursor? {
         val extras = buildQueryExtras(
             sortCol = sortCol,
             selection = selection,
@@ -229,15 +201,7 @@ class MediaScanner(private val context: Context) {
             limit = limit,
             offset = offset
         )
-        context.contentResolver.query(uri, projection, extras, signal)
-    } else {
-        context.contentResolver.query(
-            uri,
-            projection,
-            selection,
-            selectionArgs,
-            "$sortCol DESC, ${MediaStore.MediaColumns._ID} DESC"
-        )
+        return context.contentResolver.query(uri, projection, extras, signal)
     }
 
     // extras bundle for api 26+ query options
@@ -268,9 +232,7 @@ class MediaScanner(private val context: Context) {
             }
             if (limit != null) putInt(android.content.ContentResolver.QUERY_ARG_LIMIT, limit)
             if (offset != null) putInt(android.content.ContentResolver.QUERY_ARG_OFFSET, offset)
-            if (Build.VERSION.SDK_INT >= 30) {
-                putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_INCLUDE)
-            }
+            putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_INCLUDE)
         }
     }
 
@@ -289,8 +251,7 @@ class MediaScanner(private val context: Context) {
 
         val dateTakenIdx = q.dateTaken?.let { c.getColumnIndex(it) } ?: -1
         val mimeIdx = c.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)
-        val trashedIdx =
-            if (Build.VERSION.SDK_INT >= 30) c.getColumnIndex(MediaStore.MediaColumns.IS_TRASHED) else -1
+        val trashedIdx = c.getColumnIndex(MediaStore.MediaColumns.IS_TRASHED)
 
         var consumed = 0
         while (c.moveToNext()) {
