@@ -22,15 +22,15 @@ Choose Photos, Videos, or Audio, scan the available records, review detailed res
 
 Find and recover media
 
-- Photos: Find camera photos, screenshots, downloaded images, and other image files.
-- Videos: Find video clips, recordings, and other video files.
-- Audio: Find music, voice recordings, and other audio files.
-- System trash: Include trashed media when Android still exposes those records.
-- Result details: Review thumbnails, file names, dates, sizes, and trash status in grid or list view.
-- Sorting: Organize results by date, file size, or file name.
-- Multi-select recovery: Select and recover multiple files together.
-- Recovery folders: Save photos and videos to Pictures/Recovered and audio files to Music/Recovered. These folders are excluded from later scans.
-- Recovered files: Browse recovered photos, videos, and audio inside the app and tap a file to open it with a compatible app.
+- Find camera photos, screenshots, downloaded images, and other image files
+- Find video clips, recordings, and other video files
+- Find music, voice recordings, and other audio files
+- Include trashed media when Android still exposes those records
+- Review thumbnails, file names, dates, sizes, and trash status in grid or list view
+- Sort results by date, file size, or file name
+- Select and recover multiple files together
+- Save photos and videos to Pictures/Recovered and audio files to Music/Recovered, with those folders excluded from later scans
+- Browse recovered photos, videos, and audio inside the app and tap a file to open it with a compatible app
 
 Local recovery and limitations
 
