@@ -4,8 +4,7 @@ Recover Deleted Photos is aligned with the current Android 16 build and runtime 
 
 ## Android support
 
-- minimum SDK: Android 5.0 / API 21
-- scanning interface: Android 13 / API 33 and later
+- minimum SDK: Android 13 / API 33
 - compile SDK: Android 16 / API 36
 - target SDK: Android 16 / API 36
 
