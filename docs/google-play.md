@@ -1,6 +1,6 @@
 # Google Play Listing
 
-This file contains the canonical Google Play listing copy for Recover Deleted Photos. Update it whenever the Play Console listing changes so the public metadata remains aligned with the app's actual behavior and privacy disclosures.
+This file records only the canonical Google Play app name, category, short description, and full description for Recover Deleted Photos.
 
 ## App name
 
