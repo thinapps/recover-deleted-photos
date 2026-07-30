@@ -4,7 +4,6 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -21,8 +20,6 @@ object Recovery {
 
     // copies all supported items and returns the number of successes
     suspend fun copyAll(context: Context, items: List<MediaItem>): Int = withContext(Dispatchers.IO) {
-        if (Build.VERSION.SDK_INT < 29) return@withContext 0
-
         val resolver = context.contentResolver
         var ok = 0
         for (item in items.distinctBy { it.uri }) {
@@ -50,12 +47,10 @@ object Recovery {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, name)
                 put(MediaStore.MediaColumns.MIME_TYPE, mime)
                 put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
-                if (Build.VERSION.SDK_INT >= 29) {
-                    put(MediaStore.MediaColumns.IS_PENDING, 1) // keep hidden until fully written
-                    if (mime.startsWith("image/") || mime.startsWith("video/")) {
-                        val dateTaken = item.dateTakenMs ?: item.dateAddedSec * 1000
-                        put(MediaStore.MediaColumns.DATE_TAKEN, dateTaken)
-                    }
+                put(MediaStore.MediaColumns.IS_PENDING, 1) // keep hidden until fully written
+                if (mime.startsWith("image/") || mime.startsWith("video/")) {
+                    val dateTaken = item.dateTakenMs ?: item.dateAddedSec * 1000
+                    put(MediaStore.MediaColumns.DATE_TAKEN, dateTaken)
                 }
             }
 
@@ -87,13 +82,11 @@ object Recovery {
                 throw IOException("recovered byte count mismatch")
             }
 
-            if (Build.VERSION.SDK_INT >= 29) {
-                val done = ContentValues().apply {
-                    put(MediaStore.MediaColumns.IS_PENDING, 0) // make visible after success
-                }
-                if (resolver.update(dest, done, null, null) <= 0) {
-                    throw IOException("failed to publish recovered item")
-                }
+            val done = ContentValues().apply {
+                put(MediaStore.MediaColumns.IS_PENDING, 0) // make visible after success
+            }
+            if (resolver.update(dest, done, null, null) <= 0) {
+                throw IOException("failed to publish recovered item")
             }
             true
         } catch (cancelled: CancellationException) {
