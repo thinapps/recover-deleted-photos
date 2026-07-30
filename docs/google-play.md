@@ -22,22 +22,18 @@ Choose Photos, Videos, or Audio, scan the available records, review detailed res
 
 Find and recover media
 
-- Find camera photos, screenshots, downloaded images, and other image files
-- Find video clips, recordings, and other video files
-- Find music, voice recordings, and other audio files
-- Include trashed media when Android still exposes those records
-- Review thumbnails, file names, dates, sizes, and trash status in grid or list view
-- Sort results by date, file size, or file name
-- Select and recover multiple files together
-- Save photos and videos to Pictures/Recovered and audio files to Music/Recovered, with those folders excluded from later scans
-- Browse recovered photos, videos, and audio inside the app and tap a file to open it with a compatible app
+* Scan camera photos, pictures, screenshots, downloaded images, video clips, music, voice recordings, and audio files
+* Find deleted or trashed media when Android still exposes it
+* Review thumbnails, file names, dates, sizes, and trash status in grid or list view
+* Sort results by date, file size, or file name
+* Select and recover multiple files at once
+* Save recovered photos and videos to Pictures/Recovered and audio to Music/Recovered without including those copies in future scans
+* Browse recovered files inside the app and open them with a compatible app
 
-Local recovery and limitations
-
-Recovering a file creates a new copy in a dedicated folder on your device. Scan results remain temporary while you use the app, and Android cloud backup is disabled.
+Recovery limitations
 
 Recover Deleted Photos is not a forensic disk-recovery tool. It can inspect only media records and files that Android still exposes through MediaStore. It cannot restore files that have been overwritten, are inaccessible to Android, or have been permanently deleted from storage.
 
-Open source
+Open source on GitHub
 
-Recover Deleted Photos is fully open source. The complete source code is published on GitHub, where anyone can inspect how the app works, review its permissions and privacy behavior, report issues, or suggest improvements.
+Recover Deleted Photos is fully open source. The complete source code is published on GitHub, where anyone can inspect how the app works, review its permissions and privacy behavior, report issues, and suggest improvements or new features.
