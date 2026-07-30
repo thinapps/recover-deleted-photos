@@ -6,7 +6,6 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
@@ -17,7 +16,6 @@ import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -142,12 +140,6 @@ class ScanFragment : Fragment() {
             setToolbarTitle(getString(R.string.scan_title))
         }
 
-        // feature is android 13+ only
-        if (!isAndroid13Plus()) {
-            showNotSupportedState()
-            return
-        }
-
         // check permission and kick off scan
         val perm = requiredPerm(selectedType)
         val granted = ContextCompat.checkSelfPermission(requireContext(), perm) == PackageManager.PERMISSION_GRANTED
@@ -163,10 +155,6 @@ class ScanFragment : Fragment() {
 
     // ---- permission helpers --------------------------------------------------
 
-    private fun isAndroid13Plus(): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-
-    @RequiresApi(33)
     private fun requiredPerm(type: TypeChoice): String = when (type) {
         TypeChoice.PHOTOS -> Manifest.permission.READ_MEDIA_IMAGES
         TypeChoice.VIDEOS -> Manifest.permission.READ_MEDIA_VIDEO
@@ -174,7 +162,6 @@ class ScanFragment : Fragment() {
     }
 
     private fun hasPermission(type: TypeChoice): Boolean {
-        if (!isAndroid13Plus()) return false
         val p = requiredPerm(type)
         return ContextCompat.checkSelfPermission(requireContext(), p) == PackageManager.PERMISSION_GRANTED
     }
@@ -271,7 +258,7 @@ class ScanFragment : Fragment() {
             } catch (t: Throwable) {
                 if (t is CancellationException) return@launch
                 stopCountTicker()
-                if (!isAndroid13Plus()) showNotSupportedState() else showErrorState()
+                showErrorState()
             }
         }
     }
@@ -501,19 +488,6 @@ class ScanFragment : Fragment() {
         }
     }
 
-    // device not supported (sdk < 33)
-    private fun showNotSupportedState() {
-        showScanUI(false)
-        vb.stateTitle.text = getString(R.string.android_13_required_title)
-        vb.stateMessage.text = getString(R.string.android_13_required_msg)
-        vb.statePrimary.text = getString(R.string.go_home)
-        vb.statePrimary.setOnClickListener { button ->
-            button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            findNavController().popBackStack(R.id.homeFragment, false)
-        }
-        vb.stateSecondary.visibility = View.GONE
-    }
-
     // permission needed to proceed
     private fun showPermissionState() {
         started = false
@@ -536,8 +510,7 @@ class ScanFragment : Fragment() {
         }
         vb.stateSecondary.setOnClickListener { button ->
             button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            if (isAndroid13Plus()) requestPerm.launch(requiredPerm(selectedType))
-            else showNotSupportedState()
+            requestPerm.launch(requiredPerm(selectedType))
         }
     }
 
@@ -562,8 +535,8 @@ class ScanFragment : Fragment() {
         vb.statePrimary.text = getString(R.string.try_again)
         vb.statePrimary.setOnClickListener { button ->
             button.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            val perm = if (isAndroid13Plus()) requiredPerm(selectedType) else null
-            if (perm == null || ContextCompat.checkSelfPermission(requireContext(), perm) == PackageManager.PERMISSION_GRANTED) {
+            val perm = requiredPerm(selectedType)
+            if (ContextCompat.checkSelfPermission(requireContext(), perm) == PackageManager.PERMISSION_GRANTED) {
                 started = false
                 start(selectedType)
             } else {
