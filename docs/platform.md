@@ -18,6 +18,12 @@ Recover Deleted Photos is aligned with the current Android 16 build and runtime 
 
 The release workflow installs the Android 36 platform, builds a signed release bundle, verifies its signature, and names the artifact from the app version.
 
+## Gradle wrapper strategy
+
+The repository intentionally does not commit Gradle Wrapper files. The manual release workflow downloads the pinned Gradle `8.11.1` distribution and generates the wrapper inside the temporary GitHub Actions runner before building the app.
+
+This keeps generated wrapper files out of the repository while preserving a deterministic release build. If this strategy changes, update this document, the workflow, and the documented toolchain together.
+
 ## Repository workflow
 
 The repository is maintained through direct GitHub edits, and release builds run on fresh GitHub Actions runners. A root `.gitignore` is intentionally unnecessary for the current workflow because local Git checkouts, Android Studio, and local Gradle builds are not used, so local IDE settings, build outputs, keystores, and machine-specific files are not generated in the repository.
