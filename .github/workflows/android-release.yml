@@ -97,7 +97,6 @@ jobs:
             **/build/reports/**
             **/build/tmp/kotlin-compile*/**
             ~/.gradle/daemon/*/daemon-*.out.log
-            ~/.gradle/caches/**/kotlin/**
             ./**/build/outputs/logs/**
             ./**/build/*/reports/**
 
