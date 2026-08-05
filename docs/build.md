@@ -1,22 +1,25 @@
-# Platform
+# Build
 
-Recover Deleted Photos is aligned with the current Android 16 build and runtime requirements.
+This document records the Android support baseline, build toolchain, release workflow, repository conventions, and platform behavior relevant to maintaining Recover Deleted Photos.
 
-## Android support
+## Android and toolchain
 
 - minimum SDK: Android 13 / API 33
 - compile SDK: Android 16 / API 36
 - target SDK: Android 16 / API 36
+- Android Gradle Plugin: 8.10.1
+- Kotlin: 2.2.21
+- Gradle: 8.11.1 in the release workflow
+- Java and Kotlin JVM target: 17
+- R8 minification and resource shrinking: disabled
 
-## Build toolchain
+Keep this section aligned with `app/build.gradle`, the root `build.gradle`, and `.github/workflows/android-release.yml` whenever the build toolchain changes.
 
-- Android Gradle Plugin 8.10.1
-- Kotlin 2.2.21
-- Gradle 8.11.1 in the release workflow
-- Java and Kotlin JVM target 17
-- R8 minification and resource shrinking remain disabled
+## Release workflow
 
-The release workflow installs the Android 36 platform, builds a signed release bundle, verifies its signature, and names the artifact from the app version.
+The manual release workflow installs the Android 36 platform and Build Tools 35.0.0, builds a signed release AAB, verifies its signature, and names the artifact from the app version.
+
+Release signing is configured through repository secrets used only by the workflow.
 
 ## Gradle wrapper strategy
 
