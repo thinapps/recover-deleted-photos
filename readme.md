@@ -13,7 +13,7 @@ Recover Deleted Photos follows the shared ThinApps Guidelines by default; the ap
 | [Agent Instructions](agents.md) | Defines persistent repository instructions, precedence, product guardrails, commit policy, workflow rules, and review expectations for coding agents. |
 | [Scanning](docs/scanning.md) | Explains MediaStore scanning, supported results, exclusions, paging, deduplication, progress, and recovery limitations. |
 | [Permissions](docs/permissions.md) | Documents Android media permissions, privacy behavior, permission flows, partial visual access, recovered-file viewers, and recovery writes. |
-| [Platform](docs/platform.md) | Records Android support, build tooling, repository workflow, UI resources, transient state, performance, feedback, and Android 16 behavior. |
+| [Build](docs/build.md) | Records Android support, build tooling, release and repository workflows, UI resources, transient state, performance, feedback, and Android 16 behavior. |
 | [Google Play](docs/google-play.md) | Records the canonical Google Play app name, category, short description, and full description. |
 | [Changelog](changelog.md) | Lists the complete version history and released changes. |
 | [ThinApps Guidelines](https://github.com/thinapps/android-guidelines) | Provides the shared product, Android, repository, workflow, privacy, Google Play, and release defaults used across ThinApps projects. |
